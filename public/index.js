@@ -1,127 +1,87 @@
-// index.js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rate Me</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+    h1 { text-align: center; }
+    form { margin-bottom: 2rem; }
+    label { display: block; margin: 0.5rem 0 0.2rem; }
+    input, textarea { width: 100%; padding: 0.5rem; }
+    button { padding: 0.5rem 1rem; margin-top: 0.5rem; }
+    .rating { border-bottom: 1px solid #ddd; padding: 0.5rem 0; }
+    .timestamp { font-size: 0.8rem; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Rate Me</h1>
 
+  <form id="ratingForm">
+    <label for="score">Rating (1-5)</label>
+    <input type="number" id="score" name="score" min="1" max="5" required>
+    
+    <label for="comment">Comment</label>
+    <textarea id="comment" name="comment" rows="3" required></textarea>
+    
+    <button type="submit">Submit Rating</button>
+  </form>
 
-const ratingForm = document.getElementById('ratingForm');
-const ratingInput = document.getElementById('ratingInput');
-const commentInput = document.getElementById('commentInput');
-const ratingsList = document.getElementById('ratingsList');
+  <div id="ratingsContainer">
+    <h2>All Ratings</h2>
+    <div id="ratingsList"></div>
+  </div>
 
-// Fetch ratings from the Worker/Durable Object
-async function fetchRatings() {
-    const res = await fetch('/api/ratings');
-    if (!res.ok) return [];
-    return await res.json();
-}
+  <script>
+    const form = document.getElementById('ratingForm');
+    const ratingsList = document.getElementById('ratingsList');
 
-async function renderRatings() {
-    const ratings = await fetchRatings();
-    ratingsList.innerHTML = '';
-    if (ratings.length === 0) {
-        ratingsList.innerHTML = '<li>No ratings yet</li>';
-        return;
+    // Fetch and display all ratings
+    async function fetchRatings() {
+      try {
+        const res = await fetch('/api/ratings');
+        const ratings = await res.json();
+        ratingsList.innerHTML = ratings.length
+          ? ratings.map(r => `
+            <div class="rating">
+              <strong>Rating:</strong> ${r.rating} <br>
+              <strong>Comment:</strong> ${r.comment} <br>
+              <span class="timestamp">${new Date(r.timestamp).toLocaleString()}</span>
+            </div>
+          `).join('')
+          : '<p>No ratings yet.</p>';
+      } catch (err) {
+        ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+        console.error(err);
+      }
     }
-    ratings.forEach(r => {
-        const li = document.createElement('li');
-        li.className = 'rating-item';
-        li.innerHTML = `<strong>Rating:</strong> ${r.rating} / 5<br>
-                        <strong>Comment:</strong> ${r.comment || 'No comment'}`;
-        ratingsList.appendChild(li);
+
+    // Submit new rating
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const score = parseInt(document.getElementById('score').value);
+      const comment = document.getElementById('comment').value.trim();
+
+      if (!score || !comment) return;
+
+      try {
+        const res = await fetch('/api/ratings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating: score, comment })
+        });
+        const newRating = await res.json();
+        console.log('Added rating:', newRating);
+        form.reset();
+        fetchRatings();
+      } catch (err) {
+        console.error('Error submitting rating:', err);
+      }
     });
-}
 
-// Handle form submission
-ratingForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const rating = parseInt(ratingInput.value);
-    const comment = commentInput.value.trim();
-
-    if (!rating || rating < 1 || rating > 5) {
-        alert('Please enter a valid rating between 1 and 5.');
-        return;
-    }
-
-    // POST to Durable Object
-    const res = await fetch('/api/ratings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, comment })
-    });
-
-    if (!res.ok) {
-        alert('Failed to submit rating. Try again.');
-        return;
-    }
-
-    ratingInput.value = '';
-    commentInput.value = '';
-
-    await renderRatings();
-});
-
-// Initial render
-renderRatings();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // Grab references to DOM elements
-// const ratingForm = document.getElementById('ratingForm');
-// const ratingInput = document.getElementById('ratingInput');
-// const commentInput = document.getElementById('commentInput');
-// const ratingsList = document.getElementById('ratingsList');
-
-// // Function to render a rating in the list
-// function renderRating(ratingData) {
-//     const li = document.createElement('li');
-//     li.className = 'rating-item';
-//     li.innerHTML = `
-//         <strong>Rating:</strong> ${ratingData.rating} / 5<br>
-//         <strong>Comment:</strong> ${ratingData.comment || 'No comment'}
-//     `;
-//     ratingsList.appendChild(li);
-// }
-
-// // Handle form submission
-// ratingForm.addEventListener('submit', (e) => {
-//     e.preventDefault();
-
-//     const rating = parseInt(ratingInput.value);
-//     const comment = commentInput.value.trim();
-
-//     if (!rating || rating < 1 || rating > 5) {
-//         alert('Please enter a valid rating between 1 and 5.');
-//         return;
-//     }
-
-//     const ratingData = { rating, comment };
-
-//     // Ideally, send this to a backend / database here
-//     // For now, just render it immediately
-//     renderRating(ratingData);
-
-//     // Clear inputs
-//     ratingInput.value = '';
-//     commentInput.value = '';
-// });
-
-// // Optionally, load initial ratings if you have them
-// const initialRatings = [
-//     { rating: 5, comment: 'Awesome!' },
-//     { rating: 3, comment: 'It’s okay.' }
-// ];
-
-// initialRatings.forEach(renderRating);
+    // Initial load
+    fetchRatings();
+  </script>
+</body>
+</html>

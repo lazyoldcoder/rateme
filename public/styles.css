@@ -1,0 +1,199 @@
+
+  body {
+    font-family: "Helvetica Neue", sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: #f9f9f9;
+    color: #333;
+  }
+  h1 { text-align: center; margin-bottom: 1rem; font-size: 1.8rem; }
+
+  /* Business Cards  watch height is less that that of .business-card, .emoji-btn {*/ 
+  #businessContainer {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+  .cards-wrapper {
+    display: flex;
+    gap: 1rem;
+  }
+  .business-card {
+    min-width: 120px;
+    flex: 0 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: center;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: transform 0.2s;
+  }
+  .business-card.selected {
+    border: 2px solid #007bff;
+    transform: scale(1.05);
+  }
+  .business-card img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 0.3rem;
+  }
+  .business-card .name {
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+
+  /* Rating Form */
+  form {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+  }
+  label { display: block; margin-top: 0.5rem; font-weight: bold; }
+  textarea { width: 100%; padding: 0.5rem; margin-top: 0.2rem; border-radius: 6px; border: 1px solid #ccc; }
+
+  .stars {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+  }
+  .star {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #ccc;
+  }
+  .star.selected { color: gold; }
+
+  button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    background: #007bff;
+    color: white;
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  /* Ratings list */
+  #ratingsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .rating-card {
+    background: #fff;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+  
+  .rating-card .stars-display {
+    color: gold;
+    font-size: 1.2rem;
+  }
+  .rating-card .timestamp {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.2rem;
+  }
+
+.full-stars {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.star-btn {
+  flex: 1;
+  font-size: 1.8rem;
+  padding: 1.5rem 0;
+  border: none;
+  border-radius: 12px;
+  background: #eee;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.star-btn.selected {
+  background: #007bff;
+  color: white;
+  transform: scale(1.05);
+}
+
+
+.emoji-rating {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.emoji-btn {
+  flex: 1;
+  font-size: 2.5rem;
+  padding: 1rem 0;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #f0f0f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.emoji-btn[data-value="1"] { background-color: #ff4d4f; }   /* Red */
+.emoji-btn[data-value="2"] { background-color: #ff7a45; }   /* Orange */
+.emoji-btn[data-value="3"] { background-color: #ffd666; }   /* Yellow */
+.emoji-btn[data-value="4"] { background-color: #73d13d; }   /* Light Green */
+.emoji-btn[data-value="5"] { background-color: #52c41a; }   /* Green */
+
+.emoji-btn.selected {
+  box-shadow: 0 0 0 3px #1890ff;  /* Blue highlight */
+  transform: scale(1.2);
+  color: white; /* optional for contrast */
+}
+
+
+.star {
+  font-size: 2.6rem;
+  color: #ccc;
+  padding: 10.7px;  
+  /* display: inline-flex;   */
+}
+.star.selected {
+  color: gold;
+  
+}
+
+.business-card,
+.emoji-btn {
+  position: relative;
+  z-index: 10;
+}
+
+
+
+
+.rating-card {
+  opacity: 1;
+  border: .75px solid green;
+  transition: background 0.8s ease, opacity 0.8s ease, transform 0.8s ease;
+}
+
+.rating-card.new-rating {
+  background-color: #f7dff2; 
+  
+  border: 2px solid #d81eb0;
+  opacity: 0;
+  transform: translateY(-5px);
+  animation: fadeIn 1.8s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

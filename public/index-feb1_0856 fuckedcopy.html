@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<!-- retrieved from feb10814 at 0823 after a disaster bulk chasge-->
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles.css">
+<title>Rate Me</title>
+<style>
+
+
+
+</style>
+</head>
+<body>
+
+<h1>Rate Me</h1>
+
+<!-- Business Cards -->
+<div id="businessContainer"></div>
+
+<!-- Rating Form -->
+<form id="ratingForm">
+  <label>Rating</label>
+
+    <div id="starRating" class="emoji-rating">
+        <button type="button" class="emoji-btn" data-value="1" aria-label="Very bad">1😡</button>
+        <button type="button" class="emoji-btn" data-value="2" aria-label="Bad">2😞</button>
+        <button type="button" class="emoji-btn" data-value="3" aria-label="Neutral">3😐</button>
+        <button type="button" class="emoji-btn" data-value="4" aria-label="Good">4🙂</button>
+        <button type="button" class="emoji-btn" data-value="5" aria-label="Excellent">5😄</button>
+    </div>
+
+   
+  <label for="comment">Comment</label>
+  <textarea id="comment" rows="3"></textarea>
+
+  <button type="submit">Submit</button>
+</form>
+
+<!-- Ratings List -->
+<div id="ratingsContainer">
+  <h2>All Ratings</h2>
+  <div id="ratingsList"></div>
+</div>
+
+<script>
+/* ======= Data-driven businesses ======= */
+const businesses = [
+  { id: 'coffee-shop', name: 'Coffee Shop', img: 'images/coffee-shop.jpg' },
+  { id: 'hair-salon', name: 'Hair Salon', img: 'images/hair-salon.jpg' },
+  { id: 'plumber', name: 'Plumber', img: 'images/plumber.jpg' },
+  // Add more businesses here
+];
+
+/* ======= Render business cards dynamically ======= */
+const businessContainer = document.getElementById('businessContainer');
+const cardsWrapper = document.createElement('div');
+cardsWrapper.className = 'cards-wrapper';
+businessContainer.appendChild(cardsWrapper);
+
+let currentBusiness = localStorage.getItem('lastBusiness') || businesses[0].id;
+
+function selectBusiness(id) {
+  currentBusiness = id;
+  localStorage.setItem('lastBusiness', id);
+
+  document.querySelectorAll('.business-card').forEach(card => {
+    card.classList.toggle('selected', card.dataset.id === id);
+  });
+}
+
+// Create cards
+businesses.forEach(b => {
+  const card = document.createElement('div');
+  card.className = 'business-card';
+  card.dataset.id = b.id;
+
+  // const img = document.createElement('img');
+  // img.src = b.img;
+  // img.alt = b.name;
+
+  const name = document.createElement('div');
+  name.className = 'name';
+  name.textContent = b.name;
+
+  // card.appendChild(img);
+  card.appendChild(name);
+  cardsWrapper.appendChild(card);
+
+  // Click/tap to select
+  card.addEventListener('click', () => selectBusiness(b.id));
+});
+
+// Highlight last business
+selectBusiness(currentBusiness);
+
+/* ======= Star rating logic ======= */
+
+
+const emojiBtns = document.querySelectorAll('.emoji-btn');
+let selectedRating = 0;
+
+emojiBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedRating = parseInt(btn.dataset.value);
+    emojiBtns.forEach(b => b.classList.toggle('selected', parseInt(b.dataset.value) === selectedRating));
+  });
+});
+
+
+
+
+/* ======= Ratings API logic ======= */
+const form = document.getElementById('ratingForm');
+const ratingsList = document.getElementById('ratingsList');
+
+async function fetchRatings() {
+  try {
+    const res = await fetch('/api/ratings');
+    const ratings = await res.json();
+    // Filter ratings for current business
+    const filtered = ratings.filter(r => r.business === currentBusiness);
+    ratingsList.innerHTML = filtered.length
+      ? filtered.map(r => `
+        <div class="rating-card">
+          <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+          <div>${r.comment || '<em>No comment</em>'}</div>
+          <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+        </div>
+      `).join('')
+      : '<p>No ratings yet for this business.</p>';
+  } catch (err) {
+    ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+    console.error(err);
+  }
+}
+
+
+
+
+
+// SUBMIT HANDLER ----------------------------------------------------------------------------------
+// Submit new rating
+
+
+
+
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const comment = document.getElementById('comment').value.trim();
+
+  if (!currentBusiness) {
+    alert('Please select a business');
+    return;
+  }
+  if (!selectedRating) {
+    alert('Please select a rating');
+    return;
+  }
+
+  try {
+    await fetch('/api/ratings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        business: currentBusiness,
+        rating: selectedRating,
+        comment
+      })
+    });
+
+    // Only reset form inputs
+    document.getElementById('comment').value = '';
+    selectedRating = 0;
+    emojiBtns.forEach(b => b.classList.remove('selected'));
+
+    // **Reapply the selection explicitly**
+    selectBusiness(currentBusiness);
+
+  } catch (err) {
+    console.error('Error submitting rating:', err);
+    alert('Failed to submit rating.');
+  }
+});
+
+
+
+
+// form.addEventListener('submit', async e => {
+//   e.preventDefault();
+
+//   const comment = document.getElementById('comment').value.trim();
+
+//   if (!currentBusiness) {
+//     alert('Please select a business');
+//     return;
+//   }
+//   if (!selectedRating) {
+//     alert('Please select a rating');
+//     return;
+//   }
+
+//   try {
+//     await fetch('/api/ratings', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({
+//         business: currentBusiness,
+//         rating: selectedRating,
+//         comment
+//       })
+//     });
+
+//     // Reset form
+//     form.reset();
+//     selectedRating = 0;
+
+//     // Deselect all emoji buttons
+//     emojiBtns.forEach(b => b.classList.remove('selected'));
+
+//     // **Reapply the business selection UI**
+//     selectBusiness(currentBusiness);
+
+//     // Refresh ratings list
+//     fetchRatings();
+//   } catch (err) {
+//     console.error('Error submitting rating:', err);
+//     alert('Failed to submit rating. Check console.');
+//   }
+// });
+
+
+
+
+
+
+// form.addEventListener('submit', async e => {
+//   e.preventDefault();
+
+//   const comment = document.getElementById('comment').value.trim();
+
+//   // Require a business and a rating
+//   if (!currentBusiness) {
+//     alert('Please select a business');
+//     return;
+//   }
+//   if (!selectedRating) {
+//     alert('Please select a rating');
+//     return;
+//   }
+
+//   try {
+//     // Submit the rating
+//     await fetch('/api/ratings', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({
+//         business: currentBusiness,
+//         rating: selectedRating,
+//         comment
+//       })
+//     });
+
+//     // Reset form
+//     form.reset();
+//     selectedRating = 0;
+
+//     // Deselect all emoji buttons
+//     emojiBtns.forEach(b => b.classList.remove('selected'));
+
+//     // Refresh ratings list
+//     fetchRatings();
+//   } catch (err) {
+//     console.error('Error submitting rating:', err);
+//     alert('Failed to submit rating. Check console.');
+//   }
+// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+// form.addEventListener('submit', async e => {
+//   e.preventDefault();
+//   const comment = document.getElementById('comment').value.trim();
+//   if (!selectedRating || !currentBusiness) return;
+
+//   try {
+//     await fetch('/api/ratings', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ business: currentBusiness, rating: selectedRating, comment })
+//     });
+//     form.reset();
+//     selectedRating = 0;
+
+
+//     // stars.forEach(s => s.classList.remove('selected'));
+//     emojiBtns.forEach(b => b.classList.remove('selected'));
+
+    
+//     fetchRatings();
+//   } catch (err) {
+//     console.error('Error submitting rating:', err);
+//   }
+// });
+
+
+
+
+
+
+
+// Reload ratings when business changes ------------------------------------------------------------
+cardsWrapper.addEventListener('click', fetchRatings);
+
+// Initial load ------------------------------------------------------------------------------------
+fetchRatings();
+</script>
+  
+
+<!-- Load JS at the end so DOM elements exist -->
+<script src="index.js"></script>
+
+</body>
+</html>

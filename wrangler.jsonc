@@ -2,49 +2,41 @@
  * For more details on how to configure Wrangler, refer to:
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
-
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "rateme",
-  "main": "src/worker.js",
-  "compatibility_date": "2026-01-20",
-  "assets": {
-    "directory": "./public"
-  },
-  "durable_objects": {
-    "bindings": [
-      {
-        "class_name": "MyDurableObject",
-        "name": "MY_DURABLE_OBJECT"
-      }
-    ]
-  },
-  "migrations": [
-    {
-      "new_sqlite_classes": [
-        "MyDurableObject"
-      ],
-      "tag": "v1"
-    }
-  ],
-  "observability": {
-    "enabled": true
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "rateme",
+	"main": "src/worker.js",
+	"compatibility_date": "2026-01-20",
+	"assets": {
+		"directory": "./public"
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "MyDurableObject",
+				"name": "MY_DURABLE_OBJECT"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"new_sqlite_classes": [
+				"MyDurableObject"
+			],
+			"tag": "v1"
+		}
+	],
+	"observability": {
+		"enabled": true
+	},
+	"kv_namespaces": [
+		{
+			"binding": "USERS_KV",
+			"id": "906909ed37a64c3c95b7c4b1fb8c3fb5",
+			"remote": true
+		}
+	]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // {
 // 	"$schema": "node_modules/wrangler/config-schema.json",
 // 	"name": "rateme",

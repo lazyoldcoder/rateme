@@ -191,3 +191,8 @@ dist
 .env*
 !.env.example
 .wrangler/
+
+
+# all file starting or ending with Z
+**/Z*
+**/*[zZ]

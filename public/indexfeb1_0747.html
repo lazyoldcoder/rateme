@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rate Me</title>
+<style>
+  /* Mobile-first layout */
+  body {
+    font-family: "Helvetica Neue", sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: #f9f9f9;
+    color: #333;
+  }
+  h1 { text-align: center; margin-bottom: 1rem; font-size: 1.8rem; }
+  form {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+  }
+  label { display: block; margin-top: 0.5rem; font-weight: bold; }
+  textarea { width: 100%; padding: 0.5rem; margin-top: 0.2rem; border-radius: 6px; border: 1px solid #ccc; }
+  .stars {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+  }
+  .star {
+    font-size: 1.5rem;
+    cursor: pointer;
+    
+    color: #ccc;
+  }
+  .star.selected { color: gold; }
+  button {
+    margin-top: 1rem;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    background: #007bff;
+    color: white;
+    font-size: 1rem;
+    width: 100%;
+  }
+  #ratingsList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .rating-card {
+    background: #fff;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+  .rating-card .stars-display {
+    color: gold;
+    font-size: 1.2rem;
+  }
+  .rating-card .timestamp {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.2rem;
+  }
+</style>
+</head>
+<body>
+<h1>Rate Me</h1>
+
+
+
+<label for="business">Select Business</label>
+<select id="business" required>
+  <option value="">-- Choose a business --</option>
+  <option value="coffee-shop">Coffee Shop</option>
+  <option value="hair-salon">Hair Salon</option>
+  <option value="plumber">Plumber</option>
+</select>
+
+
+
+
+
+
+
+
+
+<form id="ratingForm">
+  <label>Rating</label>
+  <div class="stars" id="starRating">
+    <span class="star" data-value="1">&#9733;</span>
+    <span class="star" data-value="2">&#9733;</span>
+    <span class="star" data-value="3">&#9733;</span>
+    <span class="star" data-value="4">&#9733;</span>
+    <span class="star" data-value="5">&#9733;</span>
+  </div>
+
+  <label for="comment">Comment</label>
+  <textarea id="comment" rows="3" required></textarea>
+  <textarea id="comment" rows="3"></textarea>
+  
+  <button type="submit">Submit</button>
+</form>
+
+<div id="ratingsContainer">
+  <h2>All Ratings</h2>
+  <div id="ratingsList"></div>
+</div>
+
+<script>
+const stars = document.querySelectorAll('.star');
+let selectedRating = 0;
+
+// Star selection logic
+stars.forEach(star => {
+  star.addEventListener('click', () => {
+    selectedRating = parseInt(star.dataset.value);
+    stars.forEach(s => s.classList.toggle('selected', parseInt(s.dataset.value) <= selectedRating));
+  });
+});
+
+const form = document.getElementById('ratingForm');
+const ratingsList = document.getElementById('ratingsList');
+
+async function fetchRatings() {
+  try {
+    const res = await fetch('/api/ratings');
+    const ratings = await res.json();
+    ratingsList.innerHTML = ratings.length
+      ? ratings.map(r => `
+        <div class="rating-card">
+          <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+          <div>${r.comment}</div>
+          <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+        </div>
+      `).join('')
+      : '<p>No ratings yet.</p>';
+  } catch (err) {
+    ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+    console.error(err);
+  }
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  //const comment = document.getElementById('comment').value.trim();
+  const businessSelect = document.getElementById('business');
+  const business = businessSelect.value;
+  const comment = document.getElementById('comment').value.trim();
+  if (!selectedRating || !business ) return;
+
+//   if (!selectedRating || !comment) return;
+
+  try {
+    await fetch('/api/ratings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business, rating: selectedRating, comment })
+
+    });
+    form.reset();
+    selectedRating = 0;
+    stars.forEach(s => s.classList.remove('selected'));
+    fetchRatings();
+  } catch (err) {
+    console.error('Error submitting rating:', err);
+  }
+});
+
+// Initial load
+fetchRatings();
+</script>
+</body>
+</html>

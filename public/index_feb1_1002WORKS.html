@@ -1,0 +1,759 @@
+
+<!DOCTYPE html>
+<!-- retrieved from feb10814 at 0823 after a disaster bulk chasge-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles.css">
+<title>Rate Me</title>
+<style>
+
+</style>
+</head>
+<body>
+
+<h1>Rate Me</h1>
+
+<!-- Business Cards -->
+<div id="businessContainer"></div>
+
+<!-- Rating Form -->
+<form id="ratingForm">
+  <label>Rating</label>
+
+    <div id="starRating" class="emoji-rating">
+        <button type="button" class="emoji-btn" data-value="1" aria-label="Very bad">😡</button>
+        <button type="button" class="emoji-btn" data-value="2" aria-label="Bad">😞</button>
+        <button type="button" class="emoji-btn" data-value="3" aria-label="Neutral">😐</button>
+        <button type="button" class="emoji-btn" data-value="4" aria-label="Good">🙂</button>
+        <button type="button" class="emoji-btn" data-value="5" aria-label="Excellent">😄</button>
+    </div>
+
+        
+    <!-- Star display (driven by emoji selection) -->
+    <div id="starDisplay">
+      <span class="star" data-value="1">★</span>
+      <span class="star" data-value="2">★</span>
+      <span class="star" data-value="3">★</span>
+      <span class="star" data-value="4">★</span>
+      <span class="star" data-value="5">★</span>
+    </div>
+
+
+
+
+
+
+
+
+
+
+  <label for="comment">Comment</label>
+  <textarea id="comment" rows="3"></textarea>
+
+  <button type="submit">Submit</button>
+</form>
+
+<!-- Ratings List -->
+<div id="ratingsContainer">
+  <h2>All Ratings</h2>
+  <div id="ratingsList"></div>
+</div>
+
+
+
+
+<script>
+  /* ======= Data-driven businesses ======= */
+const businesses = [
+  { id: 'coffee-shop', name: 'Coffee Shop', img: 'images/coffee-shop.jpg' },
+  { id: 'hair-salon', name: 'Hair Salon', img: 'images/hair-salon.jpg' },
+  { id: 'plumber', name: 'Plumber', img: 'images/plumber.jpg' }
+];
+
+
+
+
+
+/* ======= DOM references ======= */
+const businessContainer = document.getElementById('businessContainer');
+const ratingsList = document.getElementById('ratingsList');
+const form = document.getElementById('ratingForm');
+const commentInput = document.getElementById('comment');
+const emojiBtns = document.querySelectorAll('.emoji-btn');
+const stars = document.querySelectorAll('.star');
+
+let currentBusiness = localStorage.getItem('lastBusiness') || businesses[0].id;
+let selectedRating = 0;
+let lastSubmittedRating = null; // Track the last submitted rating for highlight
+
+/* ======= Render business cards ======= */
+const cardsWrapper = document.createElement('div');
+cardsWrapper.className = 'cards-wrapper';
+businessContainer.appendChild(cardsWrapper);
+
+function renderBusinessCards() {
+  cardsWrapper.innerHTML = '';
+  businesses.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'business-card';
+    card.dataset.id = b.id;
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = b.name;
+    card.appendChild(name);
+
+    card.addEventListener('click', () => selectBusiness(b.id));
+    cardsWrapper.appendChild(card);
+  });
+}
+
+/* ======= Select business ======= */
+function selectBusiness(id) {
+  currentBusiness = id;
+  localStorage.setItem('lastBusiness', id);
+
+  document.querySelectorAll('.business-card').forEach(card => {
+    card.classList.toggle('selected', card.dataset.id === id);
+  });
+
+  fetchRatings();
+}
+
+/* ======= Emoji → Star Rating ======= */
+emojiBtns.forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+
+    selectedRating = parseInt(btn.dataset.value);
+
+    // Highlight emoji
+    emojiBtns.forEach(b =>
+      b.classList.toggle('selected', b.dataset.value == selectedRating)
+    );
+
+    // Drive star display
+    stars.forEach(s =>
+      s.classList.toggle('selected', s.dataset.value <= selectedRating)
+    );
+  });
+});
+
+/* ======= Fetch Ratings ======= */
+async function fetchRatings() {
+  try {
+    const res = await fetch('/api/ratings');
+    const ratings = await res.json();
+
+    // Filter current business and sort newest first
+    const filtered = ratings
+      .filter(r => r.business === currentBusiness)
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    ratingsList.innerHTML = '';
+
+    if (!filtered.length) {
+      ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+      return;
+    }
+
+    filtered.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'rating-card';
+
+      // Highlight only the last submitted rating
+      if (
+        lastSubmittedRating &&
+        r.rating === lastSubmittedRating.rating &&
+        r.comment === lastSubmittedRating.comment
+      ) {
+        div.classList.add('new-rating');
+
+        // Force reflow for smooth animation
+        div.offsetHeight;
+
+        // Remove highlight after 2s
+        setTimeout(() => div.classList.remove('new-rating'), 2000);
+
+        // Scroll the new rating into view
+        div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      div.innerHTML = `
+        <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+        <div>${r.comment || '<em>No comment</em>'}</div>
+        <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+      `;
+
+      ratingsList.appendChild(div);
+    });
+
+    // Reset flag so only the last rating is highlighted
+    lastSubmittedRating = null;
+
+  } catch (err) {
+    ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+    console.error(err);
+  }
+}
+
+/* ======= Submit Rating ======= */
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const comment = commentInput.value.trim();
+
+  if (!currentBusiness) {
+    alert('Please select a business');
+    return;
+  }
+  if (!selectedRating) {
+    alert('Please select a rating');
+    return;
+  }
+
+  // Track what was just submitted
+  lastSubmittedRating = { rating: selectedRating, comment };
+
+  try {
+    await fetch('/api/ratings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        business: currentBusiness,
+        rating: selectedRating,
+        comment
+      })
+    });
+
+    // Reset form and selections
+    commentInput.value = '';
+    selectedRating = 0;
+    emojiBtns.forEach(b => b.classList.remove('selected'));
+    stars.forEach(s => s.classList.remove('selected'));
+
+    // Fetch ratings and highlight new one
+    fetchRatings();
+
+  } catch (err) {
+    console.error('Error submitting rating:', err);
+    alert('Failed to submit rating.');
+  }
+});
+
+/* ======= Init ======= */
+renderBusinessCards();
+selectBusiness(currentBusiness);
+
+
+// /* ======= DOM references ======= */
+// const businessContainer = document.getElementById('businessContainer');
+// const ratingsList = document.getElementById('ratingsList');
+// const form = document.getElementById('ratingForm');
+// const commentInput = document.getElementById('comment');
+// const emojiBtns = document.querySelectorAll('.emoji-btn');
+// const stars = document.querySelectorAll('.star');
+
+// let currentBusiness = localStorage.getItem('lastBusiness') || businesses[0].id;
+// let selectedRating = 0;
+// let justSubmittedRatingTimestamp = null;
+
+// /* ======= Render business cards ======= */
+// const cardsWrapper = document.createElement('div');
+// cardsWrapper.className = 'cards-wrapper';
+// businessContainer.appendChild(cardsWrapper);
+
+// function renderBusinessCards() {
+//   cardsWrapper.innerHTML = '';
+//   businesses.forEach(b => {
+//     const card = document.createElement('div');
+//     card.className = 'business-card';
+//     card.dataset.id = b.id;
+//     const name = document.createElement('div');
+//     name.className = 'name';
+//     name.textContent = b.name;
+//     card.appendChild(name);
+
+//     card.addEventListener('click', () => selectBusiness(b.id));
+//     cardsWrapper.appendChild(card);
+//   });
+// }
+
+// /* ======= Select business ======= */
+// function selectBusiness(id) {
+//   currentBusiness = id;
+//   localStorage.setItem('lastBusiness', id);
+
+//   document.querySelectorAll('.business-card').forEach(card => {
+//     card.classList.toggle('selected', card.dataset.id === id);
+//   });
+
+//   fetchRatings();
+// }
+
+// /* ======= Emoji → Star Rating ======= */
+// emojiBtns.forEach(btn => {
+//   btn.addEventListener('click', e => {
+//     e.preventDefault(); // neutralize button default
+//     selectedRating = parseInt(btn.dataset.value);
+
+//     // highlight selected emoji
+//     emojiBtns.forEach(b => b.classList.toggle('selected', b.dataset.value == selectedRating));
+
+//     // update star display
+//     stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= selectedRating));
+//   });
+// });
+
+// /* ======= Fetch Ratings ======= */
+// async function fetchRatings() {
+//   try {
+//     const res = await fetch('/api/ratings');
+//     const ratings = await res.json();
+
+//     // Filter current business and sort newest first
+//     const filtered = ratings
+//       .filter(r => r.business === currentBusiness)
+//       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+//     ratingsList.innerHTML = '';
+
+//     if (!filtered.length) {
+//       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+//       return;
+//     }
+
+//     filtered.forEach(r => {
+//       const div = document.createElement('div');
+//       div.className = 'rating-card';
+
+//       // Only highlight the rating that was just submitted
+//       if (justSubmittedRatingTimestamp && r.timestamp === justSubmittedRatingTimestamp) {
+//         div.classList.add('new-rating');
+
+//         // Force reflow to fix touch/scroll flicker
+//         div.offsetHeight;
+
+//         // Remove highlight after 2s
+//         setTimeout(() => div.classList.remove('new-rating'), 2000);
+
+//         // Scroll the new rating into view
+//         div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//       }
+
+//       div.innerHTML = `
+//         <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+//         <div>${r.comment || '<em>No comment</em>'}</div>
+//         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+//       `;
+
+//       ratingsList.appendChild(div);
+//     });
+
+//     // Reset the flag so only the latest submitted rating gets highlight
+//     justSubmittedRatingTimestamp = null;
+
+//   } catch (err) {
+//     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+//     console.error(err);
+//   }
+// }
+
+// /* ======= Submit Rating ======= */
+// form.addEventListener('submit', async e => {
+//   e.preventDefault();
+
+//   const comment = commentInput.value.trim();
+
+//   if (!currentBusiness) {
+//     alert('Please select a business');
+//     return;
+//   }
+//   if (!selectedRating) {
+//     alert('Please select a rating');
+//     return;
+//   }
+
+//   try {
+//     // Timestamp now for just-submitted highlight
+//     justSubmittedRatingTimestamp = new Date().toISOString();
+
+//     await fetch('/api/ratings', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({
+//         business: currentBusiness,
+//         rating: selectedRating,
+//         comment,
+//         timestamp: justSubmittedRatingTimestamp // send timestamp to backend
+//       })
+//     });
+
+//     // Reset inputs & selections
+//     commentInput.value = '';
+//     selectedRating = 0;
+//     emojiBtns.forEach(b => b.classList.remove('selected'));
+//     stars.forEach(s => s.classList.remove('selected'));
+
+//     // Refresh ratings
+//     fetchRatings();
+
+//   } catch (err) {
+//     console.error('Error submitting rating:', err);
+//     alert('Failed to submit rating.');
+//   }
+// });
+
+// /* ======= Init ======= */
+// renderBusinessCards();
+// selectBusiness(currentBusiness);
+
+
+
+
+
+
+
+
+
+
+
+
+
+// /* ======= DOM references ======= */
+// const businessContainer = document.getElementById('businessContainer');
+// const ratingsList = document.getElementById('ratingsList');
+// const form = document.getElementById('ratingForm');
+// const commentInput = document.getElementById('comment');
+// const emojiBtns = document.querySelectorAll('.emoji-btn');
+// const stars = document.querySelectorAll('.star');
+
+// let currentBusiness = localStorage.getItem('lastBusiness') || businesses[0].id;
+// let selectedRating = 0;
+
+// /* ======= Render business cards ======= */
+// const cardsWrapper = document.createElement('div');
+// cardsWrapper.className = 'cards-wrapper';
+// businessContainer.appendChild(cardsWrapper);
+
+// function renderBusinessCards() {
+//   cardsWrapper.innerHTML = '';
+//   businesses.forEach(b => {
+//     const card = document.createElement('div');
+//     card.className = 'business-card';
+//     card.dataset.id = b.id;
+//     const name = document.createElement('div');
+//     name.className = 'name';
+//     name.textContent = b.name;
+//     card.appendChild(name);
+
+//     // click selects business
+//     card.addEventListener('click', () => selectBusiness(b.id));
+
+//     cardsWrapper.appendChild(card);
+//   });
+// }
+
+// /* ======= Select business ======= */
+// function selectBusiness(id) {
+//   currentBusiness = id;
+//   localStorage.setItem('lastBusiness', id);
+
+//   document.querySelectorAll('.business-card').forEach(card => {
+//     card.classList.toggle('selected', card.dataset.id === id);
+//   });
+
+//   fetchRatings();
+// }
+
+// /* ======= Emoji rating ======= */
+
+// /* ======= Emoji rating → star rating ======= */
+// emojiBtns.forEach(btn => {
+//   btn.addEventListener('click', e => {
+//     e.preventDefault(); // important: neutralise button behaviour
+
+//     selectedRating = parseInt(btn.dataset.value);
+
+//     // highlight emoji
+//     emojiBtns.forEach(b =>
+//       b.classList.toggle('selected', b.dataset.value == selectedRating)
+//     );
+
+//     // submit success block   
+//     // drive star display
+//     stars.forEach(star =>
+//       star.classList.toggle('selected', star.dataset.value <= selectedRating)
+//     );
+//   });
+// });
+
+
+
+// // emojiBtns.forEach(btn => {
+// //   btn.addEventListener('click', () => {
+// //     selectedRating = parseInt(btn.dataset.value);
+// //     emojiBtns.forEach(b => {
+// //       b.classList.toggle('selected', parseInt(b.dataset.value) === selectedRating);
+// //     });
+// //   });
+// // });
+
+
+
+
+
+
+
+
+
+
+
+
+// /* ======= Fetch ratings ======= */
+
+
+// let lastFetchedTimestamp = null; // keep outside fetchRatings()
+
+// async function fetchRatings() {
+//   try {
+//     const res = await fetch('/api/ratings');
+//     const ratings = await res.json();
+
+//     const filtered = ratings
+//       .filter(r => r.business === currentBusiness)
+//       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+//     ratingsList.innerHTML = '';
+
+//     if (!filtered.length) {
+//       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+//       return;
+//     }
+
+//     filtered.forEach(r => {
+//       const div = document.createElement('div');
+//       div.className = 'rating-card';
+
+//       // Only add new-rating if this rating is newer than the last fetched
+//       if (!lastFetchedTimestamp || new Date(r.timestamp) > lastFetchedTimestamp) {
+//         div.classList.add('new-rating');
+
+//         setTimeout(() => div.classList.remove('new-rating'), 2000);
+//       }
+
+//       div.innerHTML = `
+//         <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+//         <div>${r.comment || '<em>No comment</em>'}</div>
+//         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+//       `;
+
+//       ratingsList.appendChild(div);
+//     });
+
+//     // Update last fetched timestamp
+//     if (filtered.length) {
+//       lastFetchedTimestamp = new Date(filtered[0].timestamp);
+//     }
+
+//   } catch (err) {
+//     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+//     console.error(err);
+//   }
+// }
+
+
+
+
+// // async function fetchRatings() {
+// //   try {
+// //     const res = await fetch('/api/ratings');
+// //     const ratings = await res.json();
+
+// //     // Filter ratings for the current business and sort newest first
+// //     const filtered = ratings
+// //       .filter(r => r.business === currentBusiness)
+// //       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // newest first
+
+// //     ratingsList.innerHTML = ''; // clear previous ratings
+
+// //     if (!filtered.length) {
+// //       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+// //       return;
+// //     }
+
+// //     // Loop through ratings and display them
+// //     filtered.forEach((r, index) => {
+// //       const div = document.createElement('div');
+// //       div.className = 'rating-card';
+
+// //       // Only animate the newest rating (first in array)
+// //       if (index === 0) div.classList.add('new-rating');
+
+// //       div.innerHTML = `
+// //         <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+// //         <div>${r.comment || '<em>No comment</em>'}</div>
+// //         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+// //       `;
+
+// //       // Append so newest (filtered[0]) is at the top
+// //       ratingsList.appendChild(div);
+
+// //       // Remove highlight after 2 seconds
+// //       if (index === 0) {
+// //         setTimeout(() => div.classList.remove('new-rating'), 2000);
+// //       }
+// //     });
+
+// //   } catch (err) {
+// //     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+// //     console.error(err);
+// //   }
+// // }
+
+
+// // async function fetchRatings() {
+// //   try {
+// //     const res = await fetch('/api/ratings');
+// //     const ratings = await res.json();
+
+// //     // Filter for current business
+// //     const filtered = ratings
+// //       .filter(r => r.business === currentBusiness)
+// //       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // newest first
+
+
+// //     // const filtered = ratings
+// //     //   .filter(r => r.business === currentBusiness)
+// //     //   .reverse();
+
+
+// //     ratingsList.innerHTML = ''; // clear previous
+
+// //     if (!filtered.length) {
+// //       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+// //       return;
+// //     }
+
+// //     filtered.forEach((r, index) => {
+// //       const div = document.createElement('div');
+// //       div.className = 'rating-card';
+
+// //       // Only animate the newest (first) item
+// //       if (index === 0) div.classList.add('new-rating');
+
+// //       div.innerHTML = `
+// //         <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+// //         <div>${r.comment || '<em>No comment</em>'}</div>
+// //         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+// //       `;
+
+// //       // prepend to keep newest on top
+// //       ratingsList.prepend(div);
+
+// //       // Remove highlight after 2s so it doesn’t stay green
+// //       if (index === 0) {
+// //         setTimeout(() => div.classList.remove('new-rating'), 2000);
+// //       }
+// //     });
+// //   } catch (err) {
+// //     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+// //     console.error(err);
+// //   }
+// // }
+
+
+
+
+
+// // async function fetchRatings() {
+// //   try {
+// //     const res = await fetch('/api/ratings');
+// //     const ratings = await res.json();
+// //     // const filtered = ratings.filter(r => r.business === currentBusiness);
+
+
+// //     const filtered = ratings
+// //       .filter(r => r.business === currentBusiness)
+// //       .reverse();
+
+
+
+// //     ratingsList.innerHTML = filtered.length
+// //       ? filtered.map(r => `
+// //         <div class="rating-card">
+// //           <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+// //           <div>${r.comment || '<em>No comment</em>'}</div>
+// //           <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+// //         </div>
+// //       `).join('')
+// //       : '<p>No ratings yet for this business.</p>';
+// //   } catch (err) {
+// //     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+// //     console.error(err);
+// //   }
+// // }
+
+
+
+
+// /* ======= Submit rating ======= */
+// // SUBMIT & FETCH LOGIC ----------------------------------------------------------------------------
+
+// form.addEventListener('submit', async e => {
+//   e.preventDefault();
+
+//   const comment = commentInput.value.trim();
+
+//   if (!currentBusiness) {
+//     alert('Please select a business');
+//     return;
+//   }
+//   if (!selectedRating) {
+//     alert('Please select a rating');
+//     return;
+//   }
+
+//   try {
+//     await fetch('/api/ratings', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({
+//         business: currentBusiness,
+//         rating: selectedRating,
+//         comment
+//       })
+//     });
+
+//     //  
+//     // reset comment and rating only
+//     commentInput.value = '';
+//     selectedRating = 0;
+//     emojiBtns.forEach(b => b.classList.remove('selected'));
+//     stars.forEach(s => s.classList.remove('selected'));
+
+
+//     // **Reapply business selection**
+//     // selectBusiness(currentBusiness);
+//     // Just refresh ratings, don't reset UI
+//     fetchRatings();
+
+//   } catch (err) {
+//     console.error('Error submitting rating:', err);
+//     alert('Failed to submit rating.');
+//   }
+// });
+
+// /* ======= Init ======= */
+// renderBusinessCards();
+// selectBusiness(currentBusiness);
+
+</script>
+  
+<!-- Load JS at the end so DOM elements exist -->
+<!-- <scri pt src="ind ex.js"></scr ipt> -->
+
+</body>
+</html>

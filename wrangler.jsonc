@@ -3,9 +3,6 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 
-
-
-
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "rateme",

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/manifest/schema.json",
+  "name": "rateme",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-01-28",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MY_DURABLE_OBJECT",
+        "class_name": "MyDurableObject"
+      }
+    ]
+  },
+  "site": {
+    "bucket": "./public",
+    "entry-point": "workers-site"
+  }
+}

@@ -1,0 +1,21 @@
+name = "rateme"                     # Your project name
+main = "src/worker.js"              # Entry point for your Worker
+compatibility_date = "2026-01-28"   # Pick today’s date or when you last tested
+
+# Durable Object bindings
+[durable_objects]
+bindings = [
+  { name = "MY_DURABLE_OBJECT", class_name = "MyDurableObject" }
+]
+
+
+# Assets (your public/ folder)
+[site]
+bucket = "./public"
+entry-point = "workers-site"
+
+
+# Optional: for assets (your public/ folder)
+[site]
+bucket = "./public"
+entry-point = "workers-site"

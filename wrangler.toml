@@ -18,3 +18,4 @@ id = "906909ed37a64c3c95b7c4b1fb8c3fb5"
 [site]
 bucket = "./public"
 entry-point = "workers-site"
+exclude = ["*Z", "*.tmp"]

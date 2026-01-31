@@ -1,47 +1,38 @@
 // SECTION 1 Durable Object class ------------------------------------------------------------------
-
+// --- Durable Object class ---
 export class MyDurableObject {
   constructor(state, env) {
     this.state = state;
     this.env = env;
   }
 
-  // helper: get all ratings from DO storage
-  async getRatings() {
-    let ratings = await this.state.storage.get("ratings");
-    if (!ratings) ratings = [];
-    return ratings;
-  }
-
-  // helper: save ratings array
-  async saveRatings(ratings) {
-    await this.state.storage.put("ratings", ratings);
-  }
-
   async fetch(request) {
-    const ratings = await this.getRatings();
+    // Get existing ratings array or empty
+    let ratings = (await this.state.storage.get("ratings")) || [];
 
-    if (request.method === "GET") {
-      // return all ratings as an array
-      return new Response(JSON.stringify(ratings), {
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const url = new URL(request.url);
 
     if (request.method === "POST") {
-      // add new rating
-      const newRating = await request.json();
-      ratings.push(newRating);
-      await this.saveRatings(ratings);
-      return new Response(JSON.stringify(newRating), {
-        headers: { "Content-Type": "application/json" },
-      });
+      // Add a new rating if POSTed
+      try {
+        const newRating = await request.json();
+        newRating.id = ratings.length ? ratings[ratings.length - 1].id + 1 : 1;
+        ratings.push(newRating);
+        await this.state.storage.put("ratings", ratings);
+        return new Response(JSON.stringify(newRating), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+      }
     }
 
-    return new Response("Method not allowed", { status: 405 });
+    // GET: return all ratings
+    return new Response(JSON.stringify(ratings), {
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
-
 
 
 

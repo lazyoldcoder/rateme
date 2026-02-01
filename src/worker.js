@@ -66,7 +66,16 @@ export default {
       // ---------- POST: create OR update user ----------
       if (request.method === "POST") {
         const { username, email, phone } = await request.json();
-        if (!username) return new Response("Username required", { status: 400 });
+        if (!username) return new Response(
+          JSON.stringify({ username: null }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+
+
+
 
         // merge with existing user if present
         const existing = await env.USERS_KV.get(username, { type: "json" }) || {};

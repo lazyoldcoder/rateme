@@ -21,7 +21,9 @@
 <!-- Rating Form -->
 <div id="loginContainer">
   <input type="text" id="usernameInput" placeholder="Username">
+  <button id="reRegisterBtn">Register</button>
   <button id="loginBtn">Login</button>
+  
 </div>
 
 <form id="ratingForm">
@@ -59,8 +61,6 @@
 </div>
 
 
-
-
 <script>
   /* ======= Data-driven businesses ======= */
 const businesses = [
@@ -68,10 +68,6 @@ const businesses = [
   { id: 'jills-hair', name: 'Jills Hair', img: 'images/jills-hair.jpg' },
   { id: 'jack-plumber', name: 'Jack Plumber', img: 'images/jack-plumber.jpg' }
 ];
-
-
-
-
 
 /* ======= DOM references ======= */
 const businessContainer = document.getElementById('businessContainer');
@@ -140,12 +136,6 @@ emojiBtns.forEach(btn => {
 
 
 
-
-
-
-/* ======= Fetch Ratings ======= */
-
-
 /* ======= Fetch Ratings ======= */
 async function fetchRatings() {
   try {
@@ -164,45 +154,125 @@ async function fetchRatings() {
       return;
     }
 
-    filtered.forEach((r, index) => {
+
+    for (const r of filtered) {
       const div = document.createElement('div');
       div.className = 'rating-card';
 
-      // Only highlight the first item if lastSubmittedRating exists
-      if (lastSubmittedRating && index === 0) {
+      // Highlight newly submitted rating
+      if (lastSubmittedRating && r.id === lastSubmittedRating.id) {
         div.classList.add('new-rating');
-
-        // Force reflow for smooth animation
-        div.offsetHeight;
-
-        // Remove highlight after 2s
+        div.offsetHeight; // force reflow
         setTimeout(() => div.classList.remove('new-rating'), 10000);
-
-        // Scroll the new rating into view
         div.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
+      // Get latest user info from KV
+      let userData = { email: 'no email', phone: 'no phone' };
+      try {
+        const resp = await fetch(`/api/users?username=${encodeURIComponent(r.username)}`);
+        const data = await resp.json();
+        if (data.email) userData.email = data.email;
+        if (data.phone) userData.phone = data.phone;
+      } catch (err) {
+        console.warn("Failed to fetch user data for rating:", r.username);
+      }
 
-      // Include business name + email inside comment area
-      // const displayComment = `<span style="font-size:3px; font-weight:bold;">${r.business} — ${r.email}</span><br>${r.comment || '<em>No comment</em>'}`;
-
-      const displayComment = `
-        <span style="font-size:3px; font-weight:bold;">
-          ${r.business} — ${r.email}
-        </span><br>
-        ${r.comment || '<em>No comment</em>'}
-      `;
-
-
+      const starsDisplay = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
 
       div.innerHTML = `
-        <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+        <div class="stars-display">${starsDisplay}</div>
+        <div>
+          <strong>${r.username}</strong>
+          (${userData.email}, ${userData.phone})
+        </div>
         <div>${r.comment || '<em>No comment</em>'}</div>
         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
       `;
 
       ratingsList.appendChild(div);
-    });
+    }
+
+    // Reset highlight flag
+    lastSubmittedRating = null;
+
+
+
+    // filtered.forEach((r, index) => {
+    //   const div = document.createElement('div');
+    //   div.className = 'rating-card';
+
+    //   // Highlight the newly submitted rating
+    //   if (lastSubmittedRating && index === 0) {
+    //     div.classList.add('new-rating');
+    //     div.offsetHeight; // force reflow for smooth animation
+    //     setTimeout(() => div.classList.remove('new-rating'), 10000);
+    //     div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    //   }
+
+    //   // Display stars
+    //   const starsDisplay = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+
+    //   // Include user info for business visibility
+    //   div.innerHTML = `
+    //     <div class="stars-display">${starsDisplay}</div>
+    //     <div>
+    //       <strong>${r.username || 'Anonymous'}</strong>
+    //       (${r.email || 'no email'}, ${r.phone || 'no phone'})
+    //     </div>
+    //     <div>${r.comment || '<em>No comment</em>'}</div>
+    //     <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+    //   `;
+
+    //   ratingsList.appendChild(div);
+    // });
+
+
+
+
+
+
+
+
+    // filtered.forEach((r, index) => {
+    //   const div = document.createElement('div');
+    //   div.className = 'rating-card';
+
+    //   // Only highlight the first item if lastSubmittedRating exists
+    //   if (lastSubmittedRating && index === 0) {
+    //     div.classList.add('new-rating');
+
+    //     // Force reflow for smooth animation
+    //     div.offsetHeight;
+
+    //     // Remove highlight after 2s
+    //     setTimeout(() => div.classList.remove('new-rating'), 10000);
+
+    //     // Scroll the new rating into view
+    //     div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    //   }
+
+
+    //   // Include business name + email inside comment area
+    //   // const displayComment = `<span style="font-size:3px; font-weight:bold;">${r.business} — ${r.email}</span><br>${r.comment || '<em>No comment</em>'}`;
+
+    //   const displayComment = `
+    //     <span style="font-size:3px; font-weight:bold;">
+    //       ${r.business} — ${r.email}
+    //     </span><br>
+    //     ${r.comment || '<em>No comment</em>'}
+    //   `;
+
+
+
+    //   div.innerHTML = `
+    //     <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+    //     <div>${r.comment || '<em>No comment</em>'}</div>
+    //     <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+    //   `;
+
+    //   ratingsList.appendChild(div);
+    // });
 
     // Reset flag so only the last rating is highlighted
     lastSubmittedRating = null;
@@ -215,20 +285,27 @@ async function fetchRatings() {
 
 
 
-
-
-
-
 /* ======= Submit Rating ======= */
-
-
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
   
-  if (!currentUser) return alert('Please log in first');
-  
+//   if (!currentUser) return alert('Please log in first');
+  if (!currentUser) {
+    alert('Please log in first');
+    return;
+  }
+
+  if (!currentUser?.email || !currentUser?.phone) {
+    alert("Your profile is incomplete. Please re-register.");
+    return;
+  }
+
   const comment = commentInput.value.trim();
+
+
+
+
 
   if (!currentBusiness) {
     alert('Please select a business');
@@ -249,6 +326,23 @@ form.addEventListener('submit', async e => {
     
     lastSubmittedRating = { rating: selectedRating, comment, timestamp };
     
+
+
+
+
+
+    console.log("Submitting rating with user:", {
+      username: currentUser.username,
+      email: currentUser.email,
+      phone: currentUser.phone
+    });
+
+
+
+
+
+
+
     await fetch('/api/ratings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -282,64 +376,83 @@ form.addEventListener('submit', async e => {
 renderBusinessCards();
 selectBusiness(currentBusiness);
 
-
-
-// let currentUser = null;
-
-// document.getElementById('loginBtn').addEventListener('click', async () => {
-//   const username = document.getElementById('usernameInput').value.trim();
-//   if (!username) return alert('Enter username');
-
-//   try {
-//     const res = await fetch('/users.json');
-//     const users = await res.json();
-
-//     const user = users.find(u => u.username === username);
-//     if (!user) return alert('User not found');
-
-//     currentUser = user;
-//     localStorage.setItem('currentUser', JSON.stringify(user));
-
-//     document.getElementById('loginContainer').style.display = 'none';
-//     alert(`Logged in as ${user.username}`);
-//   } catch (err) {
-//     console.error(err);
-//     alert('Error logging in');
-//   }
-// });
-
-// // Optionally load from localStorage on page load
-// const stored = localStorage.getItem('currentUser');
-// if (stored) currentUser = JSON.parse(stored);
-
-
-
-
 let currentUser = null;
 
-// Check if user is already logged in
-async function initUser() {
-  // Ask for username only once per session
-  const username = prompt("Enter your username (first-time registration):");
-  if (!username) return alert("Username is required.");
+async function fetchUser(firstTimeName = null) {
+  let url = "/api/users";
+  if (!currentUser && firstTimeName) {
+    url += `?username=${encodeURIComponent(firstTimeName)}`;
+  }
 
+  const res = await fetch(url);
+
+  // const user = await res.json();
+  // // currentUser = user.username;
+  // currentUser = user;
+  // return user;
+
+  const user = await res.json();
+
+  // Only set currentUser if we don't already have full details
+  if (!currentUser || !currentUser.email) {
+    currentUser = user;
+  }
+
+  return user;
+
+
+
+}
+
+
+async function init() {
   try {
-    // Call backend to get or create user
-    const res = await fetch('/api/users?username=' + encodeURIComponent(username));
-    if (!res.ok) throw new Error("Failed to get user data");
+    // Try to fetch user from cookie / KV
+    let user = await fetchUser(); 
 
-    const userData = await res.json();
-    currentUser = userData;
+    // If user doesn't exist, prompt once
+    if (!user.username) {
+      const username = prompt("Enter your username:");
+      const email = prompt("Enter your email:");
+      const phone = prompt("Enter your phone number:");
 
+      // First-time creation call
+      user = await fetchUserCreation({ username, email, phone });
+    }
+
+    currentUser = user; // full user object
     console.log("Logged in as:", currentUser.username);
+
   } catch (err) {
-    console.error(err);
-    alert("Failed to log in. Check console.");
+    console.error("Login/init error:", err);
   }
 }
 
-// Run on page load
-initUser();
+// Helper to create a new user in KV
+async function fetchUserCreation({ username, email, phone }) {
+  const res = await fetch(`/api/users?username=${encodeURIComponent(username)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, email, phone })
+  });
+  return await res.json();
+}
+
+
+
+
+
+// async function reRegister() {
+//   // Clear local currentUser
+//   currentUser = null;
+
+//   // Delete cookie
+//   document.cookie = "rateme_user=; Path=/; Max-Age=0";
+
+//   // Reload app to trigger prompts
+//   window.location.reload();
+// }
+// reRegister();
 
 
 
@@ -350,6 +463,89 @@ initUser();
 
 
 
+// Call init on page load
+init();
+
+
+document.getElementById('reRegisterBtn').addEventListener('click', async () => {
+  // Clear cookie + in-memory user
+  currentUser = null;
+  document.cookie = "rateme_user=; Path=/; Max-Age=0";
+
+  // Prompt for new user info
+  const username = prompt("Enter username:");
+  const email = prompt("Enter email:");
+  const phone = prompt("Enter phone:");
+
+  // POST to KV
+  const res = await fetch('/api/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, email, phone })
+  });
+
+  currentUser = await res.json();
+  console.log("Re-registered as:", currentUser);
+
+  // Immediately refresh ratings with updated user info
+  fetchRatings();
+});
+
+
+// document.getElementById('reRegisterBtn').addEventListener('click', async () => {
+//   // Clear cookie + state
+//   currentUser = null;
+//   document.cookie = "rateme_user=; Path=/; Max-Age=0";
+
+//   // Force registration
+//   const username = prompt("Enter username:");
+//   const email = prompt("Enter email:");
+//   const phone = prompt("Enter phone:");
+
+//   const res = await fetch('/api/users', {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify({ username, email, phone })
+//   });
+
+//   currentUser = await res.json();
+//   // console.log("Re-registered as:", currentUser.username);
+//   console.log("Re-registered as:", currentUser);
+
+// });
+
+
+
+// document.getElementById('reRegisterBtn').addEventListener('click', async () => {
+//   // Clear currentUser and cookie
+//   currentUser = null;
+//   document.cookie = "rateme_user=; Path=/; Max-Age=0";
+
+//   // Call init() to trigger first-time registration prompts
+//   await init();
+// });
+
+
+
+
+
+
+
+
+// async function init() {
+//   try {
+//     let user = await fetchUser(); // tries cookie first
+//     if (!user.username) {
+//       const name = prompt("Enter your username:"); // first-time
+//       user = await fetchUser(name);
+//     }
+//     console.log("Logged in as:", user.username);
+//   } catch (err) {
+//     console.error("Login error:", err);
+//   }
+// }
+
+// init();
 
 
 

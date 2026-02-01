@@ -1,0 +1,427 @@
+
+<!DOCTYPE html>
+<!-- retrieved from feb10814 at 0823 after a disaster bulk chasge-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles.css">
+<title>Rate Me</title>
+<style>
+
+</style>
+</head>
+<body>
+
+<h1>😡RateMe😄</h1>
+
+<!-- Business Cards -->
+<div id="businessContainer"></div>
+
+<!-- Rating Form -->
+<div id="loginContainer">
+  <input type="text" id="usernameInput" placeholder="Username">
+  <button id="loginBtn">Login</button>
+</div>
+
+<form id="ratingForm">
+
+  <label>Rating</label>
+
+    <div id="starRating" class="emoji-rating">
+        <button type="button" class="emoji-btn" data-value="1" aria-label="Very bad">😡</button>
+        <button type="button" class="emoji-btn" data-value="2" aria-label="Bad">😞</button>
+        <button type="button" class="emoji-btn" data-value="3" aria-label="Neutral">😐</button>
+        <button type="button" class="emoji-btn" data-value="4" aria-label="Good">🙂</button>
+        <button type="button" class="emoji-btn" data-value="5" aria-label="Excellent">😄</button>
+    </div>
+
+        
+    <!-- Star display (driven by emoji selection) -->
+    <div id="starDisplay">
+      <span class="star" data-value="1">★</span>
+      <span class="star" data-value="2">★</span>
+      <span class="star" data-value="3">★</span>
+      <span class="star" data-value="4">★</span>
+      <span class="star" data-value="5">★</span>
+    </div>
+     
+  <label for="comment">Comment</label>
+  <textarea id="comment" rows="3"></textarea>
+
+  <button type="submit">Submit</button>
+</form>
+
+<!-- All Ratings List -->
+<div id="ratingsContainer">
+  <h2>All Ratings</h2>
+  <div id="ratingsList"></div>
+</div>
+
+
+<script>
+  /* ======= Data-driven businesses ======= */
+const businesses = [
+  { id: 'johns-coffee', name: 'Johns Coffee', img: 'images/johns-coffee.jpg' },
+  { id: 'jills-hair', name: 'Jills Hair', img: 'images/jills-hair.jpg' },
+  { id: 'jack-plumber', name: 'Jack Plumber', img: 'images/jack-plumber.jpg' }
+];
+
+/* ======= DOM references ======= */
+const businessContainer = document.getElementById('businessContainer');
+const ratingsList = document.getElementById('ratingsList');
+const form = document.getElementById('ratingForm');
+const commentInput = document.getElementById('comment');
+const emojiBtns = document.querySelectorAll('.emoji-btn');
+const stars = document.querySelectorAll('.star');
+
+let currentBusiness = localStorage.getItem('lastBusiness') || businesses[0].id;
+let selectedRating = 0;
+let lastSubmittedRating = null; // Track the last submitted rating for highlight
+
+/* ======= Render business cards ======= */
+const cardsWrapper = document.createElement('div');
+cardsWrapper.className = 'cards-wrapper';
+businessContainer.appendChild(cardsWrapper);
+
+function renderBusinessCards() {
+  cardsWrapper.innerHTML = '';
+  businesses.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'business-card';
+    card.dataset.id = b.id;
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = b.name;
+    card.appendChild(name);
+
+    card.addEventListener('click', () => selectBusiness(b.id));
+    cardsWrapper.appendChild(card);
+  });
+}
+
+/* ======= Select business ======= */
+function selectBusiness(id) {
+  currentBusiness = id;
+  localStorage.setItem('lastBusiness', id);
+
+  document.querySelectorAll('.business-card').forEach(card => {
+    card.classList.toggle('selected', card.dataset.id === id);
+  });
+
+  fetchRatings();
+}
+
+/* ======= Emoji → Star Rating ======= */
+emojiBtns.forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+
+    selectedRating = parseInt(btn.dataset.value);
+
+    // Highlight emoji
+    emojiBtns.forEach(b =>
+      b.classList.toggle('selected', b.dataset.value == selectedRating)
+    );
+
+    // Drive star display
+    stars.forEach(s =>
+      s.classList.toggle('selected', s.dataset.value <= selectedRating)
+    );
+  });
+});
+
+
+
+/* ======= Fetch Ratings ======= */
+async function fetchRatings() {
+  try {
+    const res = await fetch('/api/ratings');
+    const ratings = await res.json();
+
+    // Filter current business and sort newest first
+    const filtered = ratings
+      .filter(r => r.business === currentBusiness)
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    ratingsList.innerHTML = '';
+
+    if (!filtered.length) {
+      ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+      return;
+    }
+
+    filtered.forEach((r, index) => {
+      const div = document.createElement('div');
+      div.className = 'rating-card';
+
+      // Only highlight the first item if lastSubmittedRating exists
+      if (lastSubmittedRating && index === 0) {
+        div.classList.add('new-rating');
+
+        // Force reflow for smooth animation
+        div.offsetHeight;
+
+        // Remove highlight after 2s
+        setTimeout(() => div.classList.remove('new-rating'), 10000);
+
+        // Scroll the new rating into view
+        div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+
+      // Include business name + email inside comment area
+      // const displayComment = `<span style="font-size:3px; font-weight:bold;">${r.business} — ${r.email}</span><br>${r.comment || '<em>No comment</em>'}`;
+
+      const displayComment = `
+        <span style="font-size:3px; font-weight:bold;">
+          ${r.business} — ${r.email}
+        </span><br>
+        ${r.comment || '<em>No comment</em>'}
+      `;
+
+
+
+      div.innerHTML = `
+        <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+        <div>${r.comment || '<em>No comment</em>'}</div>
+        <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+      `;
+
+      ratingsList.appendChild(div);
+    });
+
+    // Reset flag so only the last rating is highlighted
+    lastSubmittedRating = null;
+
+  } catch (err) {
+    ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+    console.error(err);
+  }
+}
+
+
+
+/* ======= Submit Rating ======= */
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  
+  if (!currentUser) return alert('Please log in first');
+  
+  const comment = commentInput.value.trim();
+
+  if (!currentBusiness) {
+    alert('Please select a business');
+    return;
+  }
+  if (!selectedRating) {
+    alert('Please select a rating');
+    return;
+  }
+
+  // Track what was just submitted
+  // lastSubmittedRating = { rating: selectedRating, comment };
+
+  
+  try {
+  
+    const timestamp = new Date().toISOString();  // <-- add this line before the fetch
+    
+    lastSubmittedRating = { rating: selectedRating, comment, timestamp };
+    
+    await fetch('/api/ratings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        business: currentBusiness,
+        rating: selectedRating,
+        comment,
+        username: currentUser.username,
+        email: currentUser.email,
+        phone: currentUser.phone,
+        timestamp
+      })
+    });
+
+    // Reset form and selections
+    commentInput.value = '';
+    selectedRating = 0;
+    emojiBtns.forEach(b => b.classList.remove('selected'));
+    stars.forEach(s => s.classList.remove('selected'));
+
+    // Fetch ratings and highlight new one
+    fetchRatings();
+
+  } catch (err) {
+    console.error('Error submitting rating:', err);
+    alert('Failed to submit rating.');
+  }
+});
+
+/* ======= Init ======= */
+renderBusinessCards();
+selectBusiness(currentBusiness);
+
+let currentUser = null;
+
+async function fetchUser(firstTimeName = null) {
+  let url = "/api/users";
+  if (!currentUser && firstTimeName) {
+    url += `?username=${encodeURIComponent(firstTimeName)}`;
+  }
+
+  const res = await fetch(url);
+  const user = await res.json();
+  currentUser = user.username;
+  return user;
+}
+
+async function init() {
+  try {
+    let user = await fetchUser(); // tries cookie first
+    if (!user.username) {
+      const name = prompt("Enter your username:"); // first-time
+      user = await fetchUser(name);
+    }
+    console.log("Logged in as:", user.username);
+  } catch (err) {
+    console.error("Login error:", err);
+  }
+}
+
+init();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// let currentUser = null;
+
+
+
+
+// async function initUser() {
+//   try {
+//     // Try to get the logged-in user from the Worker (cookie-based)
+//     const res = await fetch("/api/users"); // no ?username
+//     if (res.ok) {
+//       const user = await res.json();
+//       console.log("Logged in as:", user.username);
+
+//       // hide login form if any
+//       const loginForm = document.getElementById("loginForm");
+//       if (loginForm) loginForm.style.display = "none";
+
+//       // update UI with username
+//       const userDisplay = document.getElementById("usernameDisplay");
+//       if (userDisplay) userDisplay.textContent = user.username;
+
+//       return user;
+//     }
+//   } catch (err) {
+//     console.error("Error fetching user:", err);
+//   }
+
+//   // fallback: show login form if cookie missing
+//   const loginForm = document.getElementById("loginForm");
+//   if (loginForm) loginForm.style.display = "block";
+//   return null;
+// }
+
+// // call this on page load
+// initUser();
+
+
+
+
+
+// // Check if user is already logged in
+// async function initUser() {
+//   // Ask for username only once per session
+//   const username = prompt("Enter your username (first-time registration):");
+//   if (!username) return alert("Username is required.");
+
+//   try {
+//     // Call backend to get or create user
+//     const res = await fetch('/api/users?username=' + encodeURIComponent(username));
+//     if (!res.ok) throw new Error("Failed to get user data");
+
+//     const userData = await res.json();
+//     currentUser = userData;
+
+//     console.log("Logged in as:", currentUser.username);
+//   } catch (err) {
+//     console.error(err);
+//     alert("Failed to log in. Check console.");
+//   }
+// }
+
+// // Run on page load
+// initUser();
+
+
+
+
+
+
+// let currentUser = null;
+
+// document.getElementById('loginBtn').addEventListener('click', async () => {
+//   const username = document.getElementById('usernameInput').value.trim();
+//   if (!username) return alert('Enter username');
+
+//   try {
+//     const res = await fetch('/users.json');
+//     const users = await res.json();
+
+//     const user = users.find(u => u.username === username);
+//     if (!user) return alert('User not found');
+
+//     currentUser = user;
+//     localStorage.setItem('currentUser', JSON.stringify(user));
+
+//     document.getElementById('loginContainer').style.display = 'none';
+//     alert(`Logged in as ${user.username}`);
+//   } catch (err) {
+//     console.error(err);
+//     alert('Error logging in');
+//   }
+// });
+
+// // Optionally load from localStorage on page load
+// const stored = localStorage.getItem('currentUser');
+// if (stored) currentUser = JSON.parse(stored);
+
+
+
+
+
+
+
+
+</script>
+  
+<!-- Load JS at the end so DOM elements exist -->
+<!-- <scri pt src="ind ex.js"></scr ipt> -->
+
+</body>
+</html>

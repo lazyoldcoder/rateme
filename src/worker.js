@@ -94,11 +94,13 @@ export default {
            
            
             // "Set-Cookie": `rateme_user=${encodeURIComponent(username)}; Path=/; Max-Age=${10*365*24*60*60}`
-            "Set-Cookie": `rateme_user=${encodeURIComponent(username)};
-              Path=/;
-              Max-Age=${10 * 365 * 24 * 60 * 60};
-              Secure;
-              SameSite=Lax`
+            // "Set-Cookie": `rateme_user=${encodeURIComponent(username)};
+            //   Path=/;
+            //   Max-Age=${10 * 365 * 24 * 60 * 60};
+            //   Secure;
+            //   SameSite=Lax`
+
+            "Set-Cookie": `rateme_user=${encodeURIComponent(username)}; Path=/; Max-Age=${10 * 365 * 24 * 60 * 60}; Secure; SameSite=Lax`
 
           
           
@@ -249,25 +251,6 @@ export default {
 
     //   return new Response(JSON.stringify(user), { headers });
     // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

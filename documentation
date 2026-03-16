@@ -1,0 +1,73 @@
+here are a few “typical” directory trees you can use as starting points, shown in CLI-style tree format. Pick the one that best fits your Worker setup.
+
+Typical structures 
+
+Minimal Cloudflare Worker (TypeScript) 
+text my-worker/ 
+├─ package.json 
+├─ wrangler.toml 
+├─ tsconfig.json 
+├─ .gitignore 
+├─ .dev.vars # local-only secrets (ignored by git) 
+├─ src/ │ 
+    └─ index.ts # export default { fetch(request, env, ctx) { … } } 
+        └─ test/ 
+        └─ worker.test.ts # optional (miniflare/vitest)
+
+
+
+Worker with API + static frontend + D1/KV (common “website + API” shape) 
+text my-worker/ 
+├─ package.json 
+├─ wrangler.toml 
+# bindings: D1, KV, R2, Durable Objects, queues, routes 
+├─ tsconfig.json 
+├─ .gitignore 
+├─ .dev.vars 
+# LOCAL secrets (API keys, etc.) 
+├─ public/ # static assets served by the Worker │ 
+├─ index.html │ 
+├─ favicon.ico │ 
+└─ assets/ │ 
+├─ styles.css │ 
+└─ app.js 
+├─ src/ │ 
+├─ index.ts 
+# request router: static vs API │ 
+├─ routes/ │ │ ├─ api.ts # e.g., /v1/* handlers │ │ └─ health.ts │ ├─ handlers/ │ │ └─ static.ts # serve files from /public │ ├─ db/ │ │ ├─ client.ts # wraps env.DB (D1), env.KV (KV) │ │ └─ queries.ts │ ├─ lib/ │ │ ├─ auth.ts │ │ ├─ geo.ts │ │ └─ utils.ts │ └─ types.d.ts ├─ migrations/ # D1 schema + migrations │ ├─ 0001_init.sql │ └─ 0002_add_visits.sql ├─ scripts/ │ └─ seed.ts # optional: seed DB data (wrangler d1 execute) └─ test/ ├─ api.spec.ts └─ e2e.spec.ts
+
+
+
+Cloudflare Pages with Functions (static-first, Pages Functions for server logic) text my-pages-app/ ├─ package.json ├─ wrangler.toml # defines Pages project + bindings for Functions ├─ .gitignore ├─ public/ # static site content │ ├─ index.html │ └─ assets/ │ ├─ styles.css │ └─ app.js └─ functions/ # Pages Functions (Edge runtime, same Worker APIs) ├─ [[path]].ts # catch-all route └─ api/ └─ hello.ts # /api/hello
+
+
+
+Worker with Durable Object, Cron, and Queues (for background jobs) 
+text advanced-worker/ 
+├─ package.json 
+├─ wrangler.toml 
+# durable_objects, queues.producers/consumers, triggers.crons 
+├─ tsconfig.json 
+├─ .gitignore 
+├─ .dev.vars 
+├─ src/ │ 
+    ├─ index.ts # routes + queue producers │ 
+    ├─ do/ │ │ 
+        └─ Counter.ts # export class Counter { … } │ 
+        ├─ queues/ │ │ 
+            └─ processRating.ts # export default { queue(batch, env, ctx) { … } } │ 
+            ├─ cron/ │ │ 
+                └─ nightly.ts # export default { scheduled(event, env, ctx) { … } } │ 
+                └─ lib/ │ 
+                    └─ utils.ts 
+                    └─ test/ 
+                        └─ do.spec.ts
+
+
+
+Notes on key files
+wrangler.toml: Declares bindings (D1, KV, R2, DOs), routes, and dev config. Keep secrets out of git; use .dev.vars for local and Wrangler secrets in the dashboard/CLI for prod.
+public/: Pure static assets. You can serve them from a Worker (read from ASSETS using the asset manifest) or use Cloudflare Pages; both work.
+migrations/: Use wrangler d1 migrations apply to keep your D1 schema in sync.
+src/index.ts: Exports the Worker entry point. Many teams use a tiny router (or a microframework like Hono) to split routes cleanly.
+If you tell me which variant you’re targeting (Worker-only vs Pages, and whether you need D1/KV), I can drop in a matching wrangler.toml and a minimal src/index.ts that serves public/ and mounts an /v1 API.

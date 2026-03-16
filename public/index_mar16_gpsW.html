@@ -13,7 +13,7 @@
 </head>
 <body>
 
-<h1>😡Rate_Me😄</h1>
+<h1>😡RateMe😄</h1>
 
 
 
@@ -109,7 +109,7 @@
   <button id="nearMeBtn">📍 Near Me</button>
 
   <div id="gpsDisplay" style="margin-bottom: 0.5rem; font-size: 0.85rem; color: #333;">
-    Current loccation: unknown
+    Current location: unknown
   </div>
 
 
@@ -133,11 +133,17 @@
 */
 
 
-// console.log(currentUser);  use this in console to find details 
+
+// console.log(currentUser);
+
+
+
+
 
 
 
 /* Data-driven businesses added location Mar16 */
+
 
 const businesses = [
   { id: 'johns-coffee', name: 'Johns Coffee', location: '19CF', lat: -36.88405, lng: 174.83155, img: 'images/johns-coffee.jpg' },
@@ -350,114 +356,26 @@ function selectBusiness(id) {
 
 
 
-// const businessSearchInput = document.getElementById("businessSearch");
-
-// businessSearchInput.addEventListener("input", () => {
-  
-//   const query = businessSearchInput.value.toLowerCase();
-
-//   // Filter businesses
-//   const filtered = businesses.filter(b =>
-//     b.name.toLowerCase().includes(query)
-//   );
-
-//   // Render filtered list
-//   businessList.innerHTML = "";
-
-//   filtered.forEach(b => {
-//     const row = document.createElement("div");
-//     row.className = "business-row";
-//     row.innerHTML = `
-//       <div class="name">☕ ${b.name}</div>
-//       <div class="location">${b.location}</div>
-//     `;
-//     row.addEventListener("click", () => {
-//       selectBusiness(b.id);
-//       selectedBizName.textContent = `☕ ${b.name}`;
-//       selectedBizLocation.textContent = b.location;
-//       sheet.classList.remove("open");
-//       document.body.style.overflow = ""; // unlock scroll
-//     });
-
-//     businessList.appendChild(row);
-//   });
-
-//   // Optional: show “no results” message
-//   if (!filtered.length) {
-//     businessList.innerHTML = `<div class="business-row"><em>No businesses found</em></div>`;
-//   }
-// });
-
-
-
-// const businessSearchInput = document.getElementById("businessSearch");
-
-// businessSearchInput.addEventListener("input", () => {
-
-//   const query = businessSearchInput.value.toLowerCase().trim();
-
-//   // If search is empty show full list
-//   if (!query) {
-//     renderBusinessList();
-//     return;
-//   }
-
-//   // Filter businesses by name
-//   const filtered = businesses.filter(b =>
-//     b.name.toLowerCase().includes(query)
-//   );
-
-//   // Show message if nothing found
-//   if (!filtered.length) {
-//     businessList.innerHTML =
-//       `<div class="business-row"><em>No businesses found</em></div>`;
-//     return;
-//   }
-
-//   // Render filtered list
-//   renderBusinessList(filtered);
-
-// });
-
-
-
 const businessSearchInput = document.getElementById("businessSearch");
 
 businessSearchInput.addEventListener("input", () => {
-  const query = businessSearchInput.value.toLowerCase().trim();
+  const query = businessSearchInput.value.toLowerCase();
 
-  // Filter businesses by name
+  // Filter businesses
   const filtered = businesses.filter(b =>
     b.name.toLowerCase().includes(query)
   );
 
-  // Show “no results” message if nothing found
-  if (!filtered.length) {
-    businessList.innerHTML =
-      `<div class="business-row"><em>No businesses found</em></div>`;
-    return;
-  }
-
-  // Render filtered list with distances
+  // Render filtered list
   businessList.innerHTML = "";
+
   filtered.forEach(b => {
     const row = document.createElement("div");
     row.className = "business-row";
-
-    // Calculate distance if we have user location
-    let distanceText = "";
-    if (userLat && userLng && b.lat && b.lng) {
-      const meters = getDistance(userLat, userLng, b.lat, b.lng);
-      distanceText = meters < 1000
-        ? `${Math.round(meters)} m`
-        : `${(meters / 1000).toFixed(2)} km`;
-    }
-
     row.innerHTML = `
       <div class="name">☕ ${b.name}</div>
-      <div class="location">${b.location}${distanceText ? " • " + distanceText : ""}</div>
+      <div class="location">${b.location}</div>
     `;
-
     row.addEventListener("click", () => {
       selectBusiness(b.id);
       selectedBizName.textContent = `☕ ${b.name}`;
@@ -468,7 +386,20 @@ businessSearchInput.addEventListener("input", () => {
 
     businessList.appendChild(row);
   });
+
+  // Optional: show “no results” message
+  if (!filtered.length) {
+    businessList.innerHTML = `<div class="business-row"><em>No businesses found</em></div>`;
+  }
 });
+
+
+
+
+
+
+
+
 
 
 
@@ -658,40 +589,40 @@ form.addEventListener('submit', async e => {
 
 
 
-// // new Mar16
-// // Render Businesses Into the Sheet
-// function renderBusinessList() {
+// new Mar16
+// Render Businesses Into the Sheet
+function renderBusinessList() {
 
-//   businessList.innerHTML = "";
+  businessList.innerHTML = "";
 
-//   businesses.forEach(b => {
+  businesses.forEach(b => {
 
-//     const row = document.createElement("div");
-//     row.className = "business-row";
+    const row = document.createElement("div");
+    row.className = "business-row";
 
-//     row.innerHTML = `
-//       <div class="name">☕ ${b.name}</div>
-//       <div class="location">${b.location}</div>
-//     `;
+    row.innerHTML = `
+      <div class="name">☕ ${b.name}</div>
+      <div class="location">${b.location}</div>
+    `;
 
-//       // removed this mar 16 <div class="location">Business location</div>
+      // removed this mar 16 <div class="location">Business location</div>
 
-//     row.addEventListener("click", () => {
+    row.addEventListener("click", () => {
 
-//       selectBusiness(b.id);
+      selectBusiness(b.id);
 
-//       selectedBizName.textContent = `☕ ${b.name}`;
-//       selectedBizLocation.textContent = "Business location";
+      selectedBizName.textContent = `☕ ${b.name}`;
+      selectedBizLocation.textContent = "Business location";
 
-//       sheet.classList.remove("open");
+      sheet.classList.remove("open");
 
-//     });
+    });
 
-//     businessList.appendChild(row);
+    businessList.appendChild(row);
 
-//   });
+  });
 
-// }
+}
 
 
 // function renderBusinessList(list = businesses) {
@@ -719,93 +650,31 @@ form.addEventListener('submit', async e => {
 // }
 
 
-// function renderBusinessList(list = businesses) {
-//   businessList.innerHTML = "";
-
-//   list.forEach(b => {
-//     const row = document.createElement("div");
-//     row.className = "business-row";
-
-
-
-
-
-//     let distanceText = "";
-
-//     if (userLat && userLng && b.lat && b.lng) {
-
-//       const meters = getDistance(userLat, userLng, b.lat, b.lng);
-
-//       if (meters < 1000) {
-//         distanceText = Math.round(meters) + " m";
-//       } else {
-//         distanceText = (meters / 1000).toFixed(2) + " km";
-//       }
-
-//     }
-
-
-
-
-
-
-
-
-
-
-
-//     row.innerHTML = `
-//       <div class="name">☕ ${b.name}</div>
-//       <div class="location">${b.location} • ${distanceText}</div>
-//     `;
-
-//     row.addEventListener("click", () => {
-//       selectBusiness(b.id);
-//       selectedBizName.textContent = `☕ ${b.name}`;
-//       selectedBizLocation.textContent = "Business location";
-//       sheet.classList.remove("open");
-//     });
-
-//     businessList.appendChild(row);
-//   });
-// }
-
-
 function renderBusinessList(list = businesses) {
   businessList.innerHTML = "";
 
   list.forEach(b => {
-    let distanceText = "";
-
-    if (userLat !== null && userLng !== null && b.lat && b.lng) {
-      const meters = getDistance(userLat, userLng, b.lat, b.lng);
-      distanceText = meters < 1000 
-        ? Math.round(meters) + " m" 
-        : (meters / 1000).toFixed(2) + " km";
-    }
-
     const row = document.createElement("div");
     row.className = "business-row";
+
     row.innerHTML = `
       <div class="name">☕ ${b.name}</div>
-      <div class="location">${b.location}${distanceText ? " • " + distanceText : ""}</div>
+      <div class="location">${b.location}</div>
     `;
 
     row.addEventListener("click", () => {
       selectBusiness(b.id);
       selectedBizName.textContent = `☕ ${b.name}`;
-      selectedBizLocation.textContent = `${b.location}${distanceText ? " • " + distanceText : ""}`;
+      selectedBizLocation.textContent = "Business location";
       sheet.classList.remove("open");
-      document.body.style.overflow = ""; // unlock scroll
     });
 
     businessList.appendChild(row);
   });
-
-  if (!list.length) {
-    businessList.innerHTML = `<div class="business-row"><em>No businesses found</em></div>`;
-  }
 }
+
+
+
 
 //NearMe list function
 
@@ -856,12 +725,6 @@ function renderBusinessList(list = businesses) {
 
 
 
-// mar17
-let userLat = null;
-let userLng = null;
-
-
-
 
 const gpsDisplay = document.getElementById("gpsDisplay");
 
@@ -875,17 +738,10 @@ function getCurrentLocationAndSort() {
     (pos) => {
       const { latitude, longitude } = pos.coords;
       
-
-      //new mar17
-      userLat = latitude;
-      userLng = longitude;
-
-
       // Display coords for debugging
-      gpsDisplay.textContent = `Current loccation: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+      gpsDisplay.textContent = `Current location: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
 
       // Sort businesses by distance
- 
       const sorted = [...businesses].sort((a, b) => {
         const dA = getDistance(latitude, longitude, a.lat, a.lng);
         const dB = getDistance(latitude, longitude, b.lat, b.lng);
@@ -894,25 +750,12 @@ function getCurrentLocationAndSort() {
 
       renderBusinessList(sorted); // pass sorted array
     },
- 
     (err) => {
       alert("Failed to get location: " + err.message);
     },
     { enableHighAccuracy: true }
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Haversine formula
 function getDistance(lat1, lon1, lat2, lon2) {

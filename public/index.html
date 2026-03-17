@@ -405,76 +405,6 @@ function selectBusiness(id) {
 
 
 
-// const businessSearchInput = document.getElementById("businessSearch");
-
-// businessSearchInput.addEventListener("input", () => {
-  
-//   const query = businessSearchInput.value.toLowerCase();
-
-//   // Filter businesses
-//   const filtered = businesses.filter(b =>
-//     b.name.toLowerCase().includes(query)
-//   );
-
-//   // Render filtered list
-//   businessList.innerHTML = "";
-
-//   filtered.forEach(b => {
-//     const row = document.createElement("div");
-//     row.className = "business-row";
-//     row.innerHTML = `
-//       <div class="name">☕ ${b.name}</div>
-//       <div class="location">${b.location}</div>
-//     `;
-//     row.addEventListener("click", () => {
-//       selectBusiness(b.id);
-//       selectedBizName.textContent = `☕ ${b.name}`;
-//       selectedBizLocation.textContent = b.location;
-//       sheet.classList.remove("open");
-//       document.body.style.overflow = ""; // unlock scroll
-//     });
-
-//     businessList.appendChild(row);
-//   });
-
-//   // Optional: show “no results” message
-//   if (!filtered.length) {
-//     businessList.innerHTML = `<div class="business-row"><em>No businesses found</em></div>`;
-//   }
-// });
-
-
-
-// const businessSearchInput = document.getElementById("businessSearch");
-
-// businessSearchInput.addEventListener("input", () => {
-
-//   const query = businessSearchInput.value.toLowerCase().trim();
-
-//   // If search is empty show full list
-//   if (!query) {
-//     renderBusinessList();
-//     return;
-//   }
-
-//   // Filter businesses by name
-//   const filtered = businesses.filter(b =>
-//     b.name.toLowerCase().includes(query)
-//   );
-
-//   // Show message if nothing found
-//   if (!filtered.length) {
-//     businessList.innerHTML =
-//       `<div class="business-row"><em>No businesses found</em></div>`;
-//     return;
-//   }
-
-//   // Render filtered list
-//   renderBusinessList(filtered);
-
-// });
-
-
 
 const businessSearchInput = document.getElementById("businessSearch");
 
@@ -552,26 +482,102 @@ emojiBtns.forEach(btn => {
 
 
 
+// /* Fetch Ratings */
+// async function fetchRatings() {
+//   try {
+//     const res = await fetch('/api/ratings');
+//     const ratings = await res.json();
+
+//     // Filter current business and sort newest first
+//     const filtered = ratings
+//       .filter(r => r.business === currentBusiness)
+//       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+//     ratingsList.innerHTML = '';
+
+//     if (!filtered.length) {
+//       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+//       return;
+//     }
+
+
+//     for (const r of filtered) {
+//       const div = document.createElement('div');
+//       div.className = 'rating-card';
+
+//       // Highlight newly submitted rating
+//       if (lastSubmittedRating && r.id === lastSubmittedRating.id) {
+//         div.classList.add('new-rating');
+//         div.offsetHeight; // force reflow
+//         setTimeout(() => div.classList.remove('new-rating'), 10000);
+//         div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//       }
+
+//       // Get latest user info from KV
+//       let userData = { email: 'no email', phone: 'no phone' };
+//       try {
+//         const resp = await fetch(`/api/users?username=${encodeURIComponent(r.username)}`);
+//         const data = await resp.json();
+//         if (data.email) userData.email = data.email;
+//         if (data.phone) userData.phone = data.phone;
+//       } catch (err) {
+//         console.warn("Failed to fetch user data for rating:", r.username);
+//       }
+
+//       const starsDisplay = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+
+//       div.innerHTML = `
+//         <div class="stars-display">${starsDisplay}</div>
+//         <div>
+//           <strong>${r.username}</strong>
+//           (${userData.email}, ${userData.phone})
+//         </div>
+//         <div>${r.comment || '<em>No comment</em>'}</div>
+//         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+//       `;
+
+//       ratingsList.appendChild(div);
+//     }
+
+//     // Reset highlight flag
+//     lastSubmittedRating = null;
+
+
+//     lastSubmittedRating = null;
+
+//   } catch (err) {
+//     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+//     console.error(err);
+//   }
+// }
+
+
 /* Fetch Ratings */
 async function fetchRatings() {
-  try {
-    const res = await fetch('/api/ratings');
-    const ratings = await res.json();
+  if (!currentBusiness) {
+    ratingsList.innerHTML = '<p>Please select a business.</p>';
+    return;
+  }
 
-    // Filter current business and sort newest first
-    const filtered = ratings
-      .filter(r => r.business === currentBusiness)
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  try {
+    // Request ratings for the current business
+    const res = await fetch(`/api/ratings?businessId=${encodeURIComponent(currentBusiness)}`);
+    let ratings = await res.json();
+
+    // Ensure ratings is always an array to prevent filter crash
+    if (!Array.isArray(ratings)) ratings = [];
+
+    // Sort newest first
+    ratings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     ratingsList.innerHTML = '';
 
-    if (!filtered.length) {
+    if (!ratings.length) {
       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
       return;
     }
 
-
-    for (const r of filtered) {
+    for (const r of ratings) {
       const div = document.createElement('div');
       div.className = 'rating-card';
 
@@ -610,9 +616,6 @@ async function fetchRatings() {
     }
 
     // Reset highlight flag
-    lastSubmittedRating = null;
-
-
     lastSubmittedRating = null;
 
   } catch (err) {
@@ -662,20 +665,11 @@ form.addEventListener('submit', async e => {
     lastSubmittedRating = { rating: selectedRating, comment, timestamp };
     
 
-
-
-
-
     console.log("Submitting rating with user:", {
       username: currentUser.username,
       email: currentUser.email,
       phone: currentUser.phone
     });
-
-
-
-
-
 
 
     await fetch('/api/ratings', {
@@ -710,120 +704,6 @@ form.addEventListener('submit', async e => {
 
 
 
-
-
-
-// // new Mar16
-// // Render Businesses Into the Sheet
-// function renderBusinessList() {
-
-//   businessList.innerHTML = "";
-
-//   businesses.forEach(b => {
-
-//     const row = document.createElement("div");
-//     row.className = "business-row";
-
-//     row.innerHTML = `
-//       <div class="name">☕ ${b.name}</div>
-//       <div class="location">${b.location}</div>
-//     `;
-
-//       // removed this mar 16 <div class="location">Business location</div>
-
-//     row.addEventListener("click", () => {
-
-//       selectBusiness(b.id);
-
-//       selectedBizName.textContent = `☕ ${b.name}`;
-//       selectedBizLocation.textContent = "Business location";
-
-//       sheet.classList.remove("open");
-
-//     });
-
-//     businessList.appendChild(row);
-
-//   });
-
-// }
-
-
-// function renderBusinessList(list = businesses) {
-//   businessList.innerHTML = "";
-
-//   list.forEach(b => {
-//     const row = document.createElement("div");
-//     row.className = "business-row";
-
-//     row.innerHTML = `
-//       <div class="name">☕ ${b.name}</div>
-//       <div class="location">${b.location}</div>
-//     `;
-
-//     row.addEventListener("click", () => {
-//       selectBusiness(b.id);
-//       selectedBizName.textContent = `☕ ${b.name}`;
-//       selectedBizLocation.textContent = b.location;
-//       sheet.classList.remove("open");
-//       document.body.style.overflow = ""; // unlock scroll
-//     });
-
-//     businessList.appendChild(row);
-//   });
-// }
-
-
-// function renderBusinessList(list = businesses) {
-//   businessList.innerHTML = "";
-
-//   list.forEach(b => {
-//     const row = document.createElement("div");
-//     row.className = "business-row";
-
-
-
-
-
-//     let distanceText = "";
-
-//     if (userLat && userLng && b.lat && b.lng) {
-
-//       const meters = getDistance(userLat, userLng, b.lat, b.lng);
-
-//       if (meters < 1000) {
-//         distanceText = Math.round(meters) + " m";
-//       } else {
-//         distanceText = (meters / 1000).toFixed(2) + " km";
-//       }
-
-//     }
-
-
-
-
-
-
-
-
-
-
-
-//     row.innerHTML = `
-//       <div class="name">☕ ${b.name}</div>
-//       <div class="location">${b.location} • ${distanceText}</div>
-//     `;
-
-//     row.addEventListener("click", () => {
-//       selectBusiness(b.id);
-//       selectedBizName.textContent = `☕ ${b.name}`;
-//       selectedBizLocation.textContent = "Business location";
-//       sheet.classList.remove("open");
-//     });
-
-//     businessList.appendChild(row);
-//   });
-// }
 
 
 function renderBusinessList(list = businesses) {
@@ -861,52 +741,6 @@ function renderBusinessList(list = businesses) {
     businessList.innerHTML = `<div class="business-row"><em>No businesses found</em></div>`;
   }
 }
-
-//NearMe list function
-
-
-// document.getElementById('nearMeBtn').addEventListener('click', () => {
-//   if (!navigator.geolocation) {
-//     alert("Geolocation is not supported by your browser");
-//     return;
-//   }
-
-//   navigator.geolocation.getCurrentPosition(
-//     (position) => {
-//       const userLat = position.coords.latitude;
-//       const userLng = position.coords.longitude;
-
-//       // Sort businesses by distance
-//       const sorted = [...businesses].sort((a, b) => {
-//         const dA = getDistance(userLat, userLng, a.lat, a.lng);
-//         const dB = getDistance(userLat, userLng, b.lat, b.lng);
-//         return dA - dB;
-//       });
-
-//       // Render only top 5 closest, or all
-//       renderBusinessList(sorted);
-//     },
-//     (err) => {
-//       console.error(err);
-//       alert("Unable to retrieve your location");
-//     },
-//     { enableHighAccuracy: true }
-//   );
-// });
-
-// // helper - compute distance// Haversine formula dist bet 2 lat/lng:
-
-// function getDistance(lat1, lng1, lat2, lng2) {
-//   const R = 6371; // radius of Earth in km
-//   const dLat = (lat2 - lat1) * Math.PI / 180;
-//   const dLng = (lng2 - lng1) * Math.PI / 180;
-//   const a = 
-//     Math.sin(dLat/2) * Math.sin(dLat/2) +
-//     Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
-//     Math.sin(dLng/2) * Math.sin(dLng/2);
-//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-//   return R * c; // distance in km
-// }
 
 
 
@@ -961,14 +795,6 @@ function getCurrentLocationAndSort() {
 
 
 
-
-
-
-
-
-
-
-
 // Haversine formula
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371e3; // meters
@@ -996,11 +822,6 @@ document.getElementById("nearMeBtn").addEventListener("click", getCurrentLocatio
 
 /* Init */
 
-// Mar16 remove horiz scroll 
-//renderBusinessCards();
-
-
-//renderBusinessList();    // added Mar 16
 
 selectBusiness(currentBusiness);
 
@@ -1066,12 +887,6 @@ async function fetchUserCreation({ username, email, phone }) {
 
 
 
-
-
-
-
-
-
 // Call init on page load
 init();
 
@@ -1099,17 +914,6 @@ document.getElementById('reRegisterBtn').addEventListener('click', async () => {
   // Immediately refresh ratings with updated user info
   fetchRatings();
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 

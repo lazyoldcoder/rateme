@@ -6,29 +6,80 @@ export class MyDurableObject {
     this.env = env;
   }
 
+
+  // async fetch(request) {
+  //   let ratings = (await this.state.storage.get("ratings")) || [];
+  //   const url = new URL(request.url);
+
+  //   if (request.method === "POST") {
+  //     try {
+  //       const newRating = await request.json();
+  //       newRating.id = ratings.length ? ratings[ratings.length - 1].id + 1 : 1;
+  //       ratings.push(newRating);
+  //       await this.state.storage.put("ratings", ratings);
+  //       return new Response(JSON.stringify(newRating), {
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+  //     } catch (err) {
+  //       return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+  //     }
+  //   }
+
+  //   return new Response(JSON.stringify(ratings), {
+  //     headers: { "Content-Type": "application/json" },
+  //   });
+  // }
+
+
+  // Make your Durable Object always return an array, even if empty or accidentally stored as an object:
   async fetch(request) {
-    let ratings = (await this.state.storage.get("ratings")) || [];
-    const url = new URL(request.url);
+    let ratings = await this.state.storage.get("ratings");
+
+    if (!Array.isArray(ratings)) {
+        // Convert old object-style ratings to array
+        if (ratings && typeof ratings === "object") {
+            ratings = Object.values(ratings);
+        } else {
+            ratings = [];
+        }
+        await this.state.storage.put("ratings", ratings);
+    }
 
     if (request.method === "POST") {
-      try {
-        const newRating = await request.json();
-        newRating.id = ratings.length ? ratings[ratings.length - 1].id + 1 : 1;
-        ratings.push(newRating);
-        await this.state.storage.put("ratings", ratings);
-        return new Response(JSON.stringify(newRating), {
-          headers: { "Content-Type": "application/json" },
-        });
-      } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), { status: 400 });
-      }
+        try {
+            const newRating = await request.json();
+            newRating.id = ratings.length ? ratings[ratings.length - 1].id + 1 : 1;
+            newRating.timestamp = newRating.timestamp || new Date().toISOString();
+            ratings.push(newRating);
+            await this.state.storage.put("ratings", ratings);
+            return new Response(JSON.stringify(newRating), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (err) {
+            return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+        }
     }
 
     return new Response(JSON.stringify(ratings), {
-      headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
     });
   }
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 // --- Default Worker export ---
 export default {
@@ -137,43 +188,6 @@ export default {
 
 
 
-    // ---------------- BUSINESSES API /api/businesses 17 Mar----------------
-    // if (url.pathname === "/api/businesses") {
-    //   if (request.method === "GET") {
-    //     // fetch all businesses from KV
-    //     const keys = await env.BUSINESSES_KV.list();
-    //     const allBusinesses = [];
-    //     for (const k of keys.keys) {
-    //       const data = await env.BUSINESSES_KV.get(k.name, { type: "json" });
-    //       if (data) allBusinesses.push(data);
-    //     }
-    //     return new Response(JSON.stringify(allBusinesses), {
-    //       headers: { "Content-Type": "application/json" }
-    //     });
-    //   }
-
-    //   if (request.method === "POST") {
-    //     const business = await request.json();
-
-    //     if (!business.email) {
-    //       return new Response(JSON.stringify({ error: "Email required" }), { status: 400 });
-    //     }
-
-    //     // you can also use business.id or email as the key
-    //     const key = `business:${business.id}`;
-    //     const existing = await env.BUSINESSES_KV.get(key, { type: "json" });
-
-    //     if (!existing) {
-    //       await env.BUSINESSES_KV.put(key, JSON.stringify(business));
-    //     }
-
-    //     return new Response(JSON.stringify(business), {
-    //       headers: { "Content-Type": "application/json" }
-    //     });
-    //   }
-    // }
-
-
 
 // ---------------- BUSINESSES API /api/businesses ----------------
 if (url.pathname === "/api/businesses") {
@@ -238,186 +252,17 @@ if (url.pathname === "/api/businesses") {
     
     
     
-    
-    
-    // if (url.pathname === "/api/users") {
 
-    //   // ---------- POST: create OR update user ----------
-    //   if (request.method === "POST") {
-    //     const { username, email, phone } = await request.json();
 
-    //     if (!username) {
-    //       return new Response("Username required", { status: 400 });
-    //     }
 
-    //     const existing = await env.USERS_KV.get(username, { type: "json" }) || {};
 
-    //     const user = {
-    //       username,
-    //       email: email || existing.email || "",
-    //       phone: phone || existing.phone || ""
-    //     };
 
-    //     await env.USERS_KV.put(username, JSON.stringify(user));
 
-    //     return new Response(JSON.stringify(user), {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         "Set-Cookie": `rateme_user=${encodeURIComponent(username)}; Path=/; Max-Age=${10 * 365 * 24 * 60 * 60}`
-    //       }
-    //     });
-    //   }
 
-    //   // ---------- GET: fetch user via cookie or query ----------
-    //   const cookieHeader = request.headers.get("Cookie") || "";
-    //   let username = null;
 
-    //   const match = cookieHeader.match(/rateme_user=([^;]+)/);
-    //   if (match) {
-    //     username = decodeURIComponent(match[1]);
-    //   }
 
-    //   if (!username) {
-    //     username = url.searchParams.get("username");
-    //   }
 
-    //   if (!username) {
-    //     return new Response(JSON.stringify({ username: null }), {
-    //       headers: { "Content-Type": "application/json" }
-    //     });
-    //   }
 
-    //   const user = await env.USERS_KV.get(username, { type: "json" });
-
-    //   if (!user) {
-    //     return new Response(JSON.stringify({ username: null }), {
-    //       headers: { "Content-Type": "application/json" }
-    //     });
-    //   }
-
-    //   return new Response(JSON.stringify(user), {
-    //     headers: { "Content-Type": "application/json" }
-    //   });
-    // }
-
-
-
-    // ================= USERS API (END) =================
-
-
-
-
-
-
-
-
-    // // Users (per-device login with cookie)
-    // if (url.pathname === "/api/users") {
-    //   const cookieHeader = request.headers.get("Cookie") || "";
-    //   let username = null;
-
-    //   // Check cookie
-    //   const match = cookieHeader.match(/rateme_user=([^;]+)/);
-    //   if (match) {
-    //     username = decodeURIComponent(match[1]);
-    //   }
-
-    //   // First-time login
-    //   if (!username) {
-    //     username = url.searchParams.get("username");
-    //     if (!username) return new Response("Missing username", { status: 400 });
-    //   }
-
-
-
-
-    //   // // Get or create user in KV
-    //   // let user = await env.USERS_KV.get(username, { type: "json" });
-    //   // if (!user) {
-    //   //   user = { username, email: "", phone: "" };
-    //   //   await env.USERS_KV.put(username, JSON.stringify(user));
-    //   // }
-
-
-    //   // GET: only return existing user
-    //   let user = await env.USERS_KV.get(username, { type: "json" });
-
-    //   if (!user) {
-    //     return new Response(JSON.stringify({ username: null }), {
-    //       headers: { "Content-Type": "application/json" }
-    //     });
-    //   }
-
-
-
-
-
-
-    //   // Set cookie if first time
-    //   const headers = { "Content-Type": "application/json" };
-    //   if (!match) {
-    //     headers["Set-Cookie"] = `rateme_user=${encodeURIComponent(username)}; Path=/; Max-Age=${10*365*24*60*60}`;
-    //   }
-
-    //   return new Response(JSON.stringify(user), { headers });
-    // }
-
-
-
-
-
-
-
-//     // Static assets fallback
-//     try {
-//       return await fetch(request);
-//     } catch (err) {
-//       return new Response("Not found", { status: 404 });
-//     }
-//   },
-// };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// if (url.pathname === "/api/users" && request.method === "POST") {
-//   const body = await request.json();
-//   const { username, email, phone } = body;
-
-//   if (!username) {
-//     return new Response("Username required", { status: 400 });
-//   }
-
-//   const user = { username, email, phone };
-//   await env.USERS_KV.put(username, JSON.stringify(user));
-
-//   return new Response(JSON.stringify(user), {
-//     headers: {
-//       "Content-Type": "application/json",
-//       "Set-Cookie": `rateme_user=${encodeURIComponent(username)}; Path=/; Max-Age=${10*365*24*60*60}`
-//     }
-//   });
-// }
 
 
 

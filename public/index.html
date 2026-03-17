@@ -552,23 +552,97 @@ emojiBtns.forEach(btn => {
 // }
 
 
-/* Fetch Ratings */
+// /* Fetch Ratings */
+// async function fetchRatings() {
+//   if (!currentBusiness) {
+//     ratingsList.innerHTML = '<p>Please select a business.</p>';
+//     return;
+//   }
+
+//   try {
+//     // Request ratings for the current business
+//     const res = await fetch(`/api/ratings?businessId=${encodeURIComponent(currentBusiness)}`);
+//     let ratings = await res.json();
+
+//     // Ensure ratings is always an array to prevent filter crash
+//     if (!Array.isArray(ratings)) ratings = [];
+
+//     // Sort newest first
+//     ratings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+//     ratingsList.innerHTML = '';
+
+//     if (!ratings.length) {
+//       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+//       return;
+//     }
+
+//     for (const r of ratings) {
+//       const div = document.createElement('div');
+//       div.className = 'rating-card';
+
+//       // Highlight newly submitted rating
+//       if (lastSubmittedRating && r.id === lastSubmittedRating.id) {
+//         div.classList.add('new-rating');
+//         div.offsetHeight; // force reflow
+//         setTimeout(() => div.classList.remove('new-rating'), 10000);
+//         div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//       }
+
+//       // Get latest user info from KV
+//       let userData = { email: 'no email', phone: 'no phone' };
+//       try {
+//         const resp = await fetch(`/api/users?username=${encodeURIComponent(r.username)}`);
+//         const data = await resp.json();
+//         if (data.email) userData.email = data.email;
+//         if (data.phone) userData.phone = data.phone;
+//       } catch (err) {
+//         console.warn("Failed to fetch user data for rating:", r.username);
+//       }
+
+//       const starsDisplay = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+
+//       div.innerHTML = `
+//         <div class="stars-display">${starsDisplay}</div>
+//         <div>
+//           <strong>${r.username}</strong>
+//           (${userData.email}, ${userData.phone})
+//         </div>
+//         <div>${r.comment || '<em>No comment</em>'}</div>
+//         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+//       `;
+
+//       ratingsList.appendChild(div);
+//     }
+
+//     // Reset highlight flag
+//     lastSubmittedRating = null;
+
+//   } catch (err) {
+//     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+//     console.error(err);
+//   }
+// }
+
+
+
+
+
+
+
 async function fetchRatings() {
-  if (!currentBusiness) {
-    ratingsList.innerHTML = '<p>Please select a business.</p>';
-    return;
-  }
+  if (!currentBusiness) return;
 
   try {
-    // Request ratings for the current business
     const res = await fetch(`/api/ratings?businessId=${encodeURIComponent(currentBusiness)}`);
-    let ratings = await res.json();
+    const ratings = await res.json();
 
-    // Ensure ratings is always an array to prevent filter crash
-    if (!Array.isArray(ratings)) ratings = [];
-
-    // Sort newest first
-    ratings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // Safety check: ensure we have an array
+    if (!Array.isArray(ratings)) {
+      console.error('Ratings fetch failed:', ratings);
+      ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+      return;
+    }
 
     ratingsList.innerHTML = '';
 
@@ -581,33 +655,11 @@ async function fetchRatings() {
       const div = document.createElement('div');
       div.className = 'rating-card';
 
-      // Highlight newly submitted rating
-      if (lastSubmittedRating && r.id === lastSubmittedRating.id) {
-        div.classList.add('new-rating');
-        div.offsetHeight; // force reflow
-        setTimeout(() => div.classList.remove('new-rating'), 10000);
-        div.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
-      // Get latest user info from KV
-      let userData = { email: 'no email', phone: 'no phone' };
-      try {
-        const resp = await fetch(`/api/users?username=${encodeURIComponent(r.username)}`);
-        const data = await resp.json();
-        if (data.email) userData.email = data.email;
-        if (data.phone) userData.phone = data.phone;
-      } catch (err) {
-        console.warn("Failed to fetch user data for rating:", r.username);
-      }
-
       const starsDisplay = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
 
       div.innerHTML = `
         <div class="stars-display">${starsDisplay}</div>
-        <div>
-          <strong>${r.username}</strong>
-          (${userData.email}, ${userData.phone})
-        </div>
+        <div><strong>${r.username}</strong></div>
         <div>${r.comment || '<em>No comment</em>'}</div>
         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
       `;
@@ -615,14 +667,19 @@ async function fetchRatings() {
       ratingsList.appendChild(div);
     }
 
-    // Reset highlight flag
-    lastSubmittedRating = null;
-
   } catch (err) {
-    ratingsList.innerHTML = '<p>Error loading ratings.</p>';
     console.error(err);
+    ratingsList.innerHTML = '<p>Error loading ratings.</p>';
   }
 }
+
+
+
+
+
+
+
+
 
 
 

@@ -249,14 +249,14 @@
 }
 
 
-
+/*  
 body.sheet-open {
   overflow: hidden;
-  touch-action: none; /* disables pinch/scroll gestures while sheet is open */
-}
+  touch-action: none;
+}  */
+ 
 
-
-
+/* 
 
 #businessSheet {
   position: fixed;
@@ -265,11 +265,10 @@ body.sheet-open {
   bottom: -100%;
   
   
-  /* height: 50vh; */
-  min-height: 50vh;  /* initial height */
-  max-height: 90vh;  /* max stretch */
+  min-height: 50vh; 
+  max-height: 90vh; 
   height: auto;
-  overflow-y: auto;  /* scroll content if it exceeds the sheet */
+  overflow-y: auto; 
 
 
   background: white;
@@ -281,7 +280,7 @@ body.sheet-open {
   display: flex;
   flex-direction: column;
   will-change: bottom;
-}
+} */
 
 
 /* stops background scroll in sheet area */
@@ -290,8 +289,32 @@ body.sheet-open {
 } */
 
 
+body.sheet-open {
+  overflow: hidden;          /* lock page scroll */
+  touch-action: pan-y;       /* allow vertical drag in sheet */
+}
+
+#businessSheet {
+  bottom: -50vh;             /* start half-hidden, matches JS CLOSED */
+  transition: bottom 0.3s ease;
+}
+
+/* Optional: better handle feedback */
+.sheet-handle {
+  cursor: grab;
+}
+.sheet-handle:active {
+  cursor: grabbing;
+}
 
 
+
+
+
+
+
+
+/* 
 
 .sheet-handle {
   width: 40px;
@@ -301,7 +324,7 @@ body.sheet-open {
   margin: 10px auto;
   cursor: grab;
   position: relative;
-}
+} */
 
 /* invisible grab zone */
 .sheet-handle::before {

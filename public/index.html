@@ -714,7 +714,9 @@ form.addEventListener('submit', async e => {
     return;
   }
 
-  
+ 
+  console.log("Submitting rating for business:", currentBusiness);
+
   try {
   
     const timestamp = new Date().toISOString();  // <-- add this line before the fetch
@@ -727,6 +729,9 @@ form.addEventListener('submit', async e => {
       email: currentUser.email,
       phone: currentUser.phone
     });
+
+
+    console.log("Submitting rating for business:", currentBusiness);
 
 
     await fetch('/api/ratings', {

@@ -250,7 +250,10 @@
 
 
 
-
+body.sheet-open {
+  overflow: hidden;
+  touch-action: none; /* disables pinch/scroll gestures while sheet is open */
+}
 
 
 

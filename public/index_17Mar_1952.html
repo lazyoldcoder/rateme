@@ -306,54 +306,20 @@ document.addEventListener("mousemove", dragMove);
 document.addEventListener("touchmove", dragMove);
 
 
-// function dragMove(e) {
-//   if (!isDragging) return;
-
-//   currentY = e.touches ? e.touches[0].clientY : e.clientY;
-//   const diff = startY - currentY; // positive if dragging up
-
-//   let newBottom = sheetBottom + diff;
-
-//   // Clamp limits
-//   newBottom = Math.min(FULL_OPEN, Math.max(CLOSED, newBottom));
-
-//   sheet.style.bottom = `${newBottom}px`;
-// }
-
-
 function dragMove(e) {
   if (!isDragging) return;
 
-  e.preventDefault(); // prevent background scroll
   currentY = e.touches ? e.touches[0].clientY : e.clientY;
-  const diff = startY - currentY; // drag up positive
+  const diff = startY - currentY; // positive if dragging up
 
   let newBottom = sheetBottom + diff;
+
+  // Clamp limits
   newBottom = Math.min(FULL_OPEN, Math.max(CLOSED, newBottom));
+
   sheet.style.bottom = `${newBottom}px`;
 }
 
-// function endDrag() {
-//   if (!isDragging) return;
-//   isDragging = false;
-
-//   const current = parseFloat(sheet.style.bottom);
-
-//   const snapThreshold = window.innerHeight / 4;
-
-//   if (current > FULL_OPEN - snapThreshold) {
-//     // full screen
-//     sheet.style.bottom = `${FULL_OPEN}px`;
-//   } else if (current > HALF_OPEN - snapThreshold) {
-//     // half-open
-//     sheet.style.bottom = `${HALF_OPEN}px`;
-//   } else {
-//     // closed
-//     sheet.style.bottom = `${CLOSED}px`;
-//     sheet.classList.remove("open");
-//     document.body.style.overflow = "";
-//   }
-// }
 
 
 
@@ -362,14 +328,20 @@ function endDrag() {
   isDragging = false;
 
   const current = parseFloat(sheet.style.bottom);
+
   const snapThreshold = window.innerHeight / 4;
 
   if (current > FULL_OPEN - snapThreshold) {
-    sheet.style.bottom = `${FULL_OPEN}px`; // fully open
+    // full screen
+    sheet.style.bottom = `${FULL_OPEN}px`;
   } else if (current > HALF_OPEN - snapThreshold) {
-    sheet.style.bottom = `${HALF_OPEN}px`; // half open
+    // half-open
+    sheet.style.bottom = `${HALF_OPEN}px`;
   } else {
-    closeSheet(); // fully closed
+    // closed
+    sheet.style.bottom = `${CLOSED}px`;
+    sheet.classList.remove("open");
+    document.body.style.overflow = "";
   }
 }
 
@@ -377,14 +349,18 @@ function endDrag() {
 
 
 
+
+
+
+
 // Fix 3 — Lock Page Scroll While Sheet Is Open (Best UX)
 // Add this small JS improvement.When opening the sheet:
-// selector.addEventListener("click", () => {
-//   sheet.classList.add("open");
-//   // sheet.style.bottom = `${-window.innerHeight / 2}px`; // half-open ################# 17 Mar
-//   sheet.style.bottom = `${HALF_OPEN}px`;
-//   document.body.style.overflow = "hidden";
-// });
+selector.addEventListener("click", () => {
+  sheet.classList.add("open");
+  // sheet.style.bottom = `${-window.innerHeight / 2}px`; // half-open ################# 17 Mar
+  sheet.style.bottom = `${HALF_OPEN}px`;
+  document.body.style.overflow = "hidden";
+});
 
 // When closing:
 // sheet.classList.remove("open");
@@ -392,17 +368,7 @@ function endDrag() {
 
 
 
-selector.addEventListener("click", () => {
-  sheet.classList.add("open");
-  sheet.style.bottom = `${HALF_OPEN}px`;
-  document.body.classList.add("sheet-open");
-});
 
-function closeSheet() {
-  sheet.style.bottom = `${CLOSED}px`;
-  sheet.classList.remove("open");
-  document.body.classList.remove("sheet-open");
-}
 
 
 
@@ -486,25 +452,13 @@ businessSearchInput.addEventListener("input", () => {
       <div class="location">${b.location}${distanceText ? " • " + distanceText : ""}</div>
     `;
 
-    // row.addEventListener("click", () => {
-    //   selectBusiness(b.id);
-    //   selectedBizName.textContent = `☕ ${b.name}`;
-    //   selectedBizLocation.textContent = b.location;
-    //   sheet.classList.remove("open");
-    //   document.body.style.overflow = ""; // unlock scroll
-    // });
-
-
     row.addEventListener("click", () => {
       selectBusiness(b.id);
       selectedBizName.textContent = `☕ ${b.name}`;
       selectedBizLocation.textContent = b.location;
-      closeSheet(); // ensures sheet closes and body scroll restored
+      sheet.classList.remove("open");
+      document.body.style.overflow = ""; // unlock scroll
     });
-
-
-
-
 
     businessList.appendChild(row);
   });
@@ -534,6 +488,152 @@ emojiBtns.forEach(btn => {
     );
   });
 });
+
+
+
+// /* Fetch Ratings */
+// async function fetchRatings() {
+//   try {
+//     const res = await fetch('/api/ratings');
+//     const ratings = await res.json();
+
+//     // Filter current business and sort newest first
+//     const filtered = ratings
+//       .filter(r => r.business === currentBusiness)
+//       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+//     ratingsList.innerHTML = '';
+
+//     if (!filtered.length) {
+//       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+//       return;
+//     }
+
+
+//     for (const r of filtered) {
+//       const div = document.createElement('div');
+//       div.className = 'rating-card';
+
+//       // Highlight newly submitted rating
+//       if (lastSubmittedRating && r.id === lastSubmittedRating.id) {
+//         div.classList.add('new-rating');
+//         div.offsetHeight; // force reflow
+//         setTimeout(() => div.classList.remove('new-rating'), 10000);
+//         div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//       }
+
+//       // Get latest user info from KV
+//       let userData = { email: 'no email', phone: 'no phone' };
+//       try {
+//         const resp = await fetch(`/api/users?username=${encodeURIComponent(r.username)}`);
+//         const data = await resp.json();
+//         if (data.email) userData.email = data.email;
+//         if (data.phone) userData.phone = data.phone;
+//       } catch (err) {
+//         console.warn("Failed to fetch user data for rating:", r.username);
+//       }
+
+//       const starsDisplay = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+
+//       div.innerHTML = `
+//         <div class="stars-display">${starsDisplay}</div>
+//         <div>
+//           <strong>${r.username}</strong>
+//           (${userData.email}, ${userData.phone})
+//         </div>
+//         <div>${r.comment || '<em>No comment</em>'}</div>
+//         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+//       `;
+
+//       ratingsList.appendChild(div);
+//     }
+
+//     // Reset highlight flag
+//     lastSubmittedRating = null;
+
+
+//     lastSubmittedRating = null;
+
+//   } catch (err) {
+//     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+//     console.error(err);
+//   }
+// }
+
+
+// /* Fetch Ratings */
+// async function fetchRatings() {
+//   if (!currentBusiness) {
+//     ratingsList.innerHTML = '<p>Please select a business.</p>';
+//     return;
+//   }
+
+//   try {
+//     // Request ratings for the current business
+//     const res = await fetch(`/api/ratings?businessId=${encodeURIComponent(currentBusiness)}`);
+//     let ratings = await res.json();
+
+//     // Ensure ratings is always an array to prevent filter crash
+//     if (!Array.isArray(ratings)) ratings = [];
+
+//     // Sort newest first
+//     ratings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+//     ratingsList.innerHTML = '';
+
+//     if (!ratings.length) {
+//       ratingsList.innerHTML = '<p>No ratings yet for this business.</p>';
+//       return;
+//     }
+
+//     for (const r of ratings) {
+//       const div = document.createElement('div');
+//       div.className = 'rating-card';
+
+//       // Highlight newly submitted rating
+//       if (lastSubmittedRating && r.id === lastSubmittedRating.id) {
+//         div.classList.add('new-rating');
+//         div.offsetHeight; // force reflow
+//         setTimeout(() => div.classList.remove('new-rating'), 10000);
+//         div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//       }
+
+//       // Get latest user info from KV
+//       let userData = { email: 'no email', phone: 'no phone' };
+//       try {
+//         const resp = await fetch(`/api/users?username=${encodeURIComponent(r.username)}`);
+//         const data = await resp.json();
+//         if (data.email) userData.email = data.email;
+//         if (data.phone) userData.phone = data.phone;
+//       } catch (err) {
+//         console.warn("Failed to fetch user data for rating:", r.username);
+//       }
+
+//       const starsDisplay = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+
+//       div.innerHTML = `
+//         <div class="stars-display">${starsDisplay}</div>
+//         <div>
+//           <strong>${r.username}</strong>
+//           (${userData.email}, ${userData.phone})
+//         </div>
+//         <div>${r.comment || '<em>No comment</em>'}</div>
+//         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
+//       `;
+
+//       ratingsList.appendChild(div);
+//     }
+
+//     // Reset highlight flag
+//     lastSubmittedRating = null;
+
+//   } catch (err) {
+//     ratingsList.innerHTML = '<p>Error loading ratings.</p>';
+//     console.error(err);
+//   }
+// }
+
+
 
 
 
@@ -729,15 +829,6 @@ function renderBusinessList(list = businesses) {
     businessList.innerHTML = `<div class="business-row"><em>No businesses found</em></div>`;
   }
 }
-
-
-
-
-sheet.addEventListener('touchmove', (e) => {
-  if (!isDragging) return;
-  e.stopPropagation(); // allow sheet drag, stop background
-}, { passive: false });
-
 
 
 

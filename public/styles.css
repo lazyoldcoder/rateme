@@ -256,9 +256,9 @@ body.sheet-open {
 }  */
  
 
-/* 
-
-#businessSheet {
+ 
+ 
+/* #businessSheet {
   position: fixed;
   left: 0;
   right: 0;
@@ -267,6 +267,9 @@ body.sheet-open {
   
   min-height: 50vh; 
   max-height: 90vh; 
+
+
+
   height: auto;
   overflow-y: auto; 
 
@@ -280,7 +283,7 @@ body.sheet-open {
   display: flex;
   flex-direction: column;
   will-change: bottom;
-} */
+}  */
 
 
 /* stops background scroll in sheet area */
@@ -289,15 +292,76 @@ body.sheet-open {
 } */
 
 
-body.sheet-open {
-  overflow: hidden;          /* lock page scroll */
-  touch-action: pan-y;       /* allow vertical drag in sheet */
-}
+/* 
+#businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100vh; 
+  max-height: 90vh;    
+  background: white;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: bottom 0.3s ease;
+  will-change: bottom;
+  overflow-y: auto;        
+} */
+
+
+
 
 #businessSheet {
-  bottom: -50vh;             /* start half-hidden, matches JS CLOSED */
-  transition: bottom 0.3s ease;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100vh;           /* fully hidden initially */
+  min-height: 50vh;
+  max-height: 90vh;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: bottom 0.3s ease;  /* smooth snapping */
+  z-index: 1000;
 }
+
+
+
+
+
+
+
+
+
+
+body.sheet-open {
+  overflow: hidden;          /* lock page scroll */
+  touch-action: pan-y;
+  touch-action: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Optional: better handle feedback */
 .sheet-handle {

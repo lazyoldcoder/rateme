@@ -1,6 +1,7 @@
 {
 	"name": "rateme",
 	"version": "0.0.0",
+	"type": "module",
 	"private": true,
 	"scripts": {
 		"deploy": "wrangler deploy",
@@ -9,5 +10,9 @@
 	},
 	"devDependencies": {
 		"wrangler": "^4.61.1"
+	},
+	"dependencies": {
+		"node-fetch": "^3.3.2",
+		"qrcode": "^1.5.4"
 	}
 }

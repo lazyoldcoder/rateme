@@ -34,6 +34,11 @@
 			"binding": "USERS_KV",
 			"id": "906909ed37a64c3c95b7c4b1fb8c3fb5",
 			"remote": true
+		},
+		{
+			"binding": "BUSINESSES_KV",
+			"id": "c647287b510243d795ad99144be8b9a9",
+			"remote": true
 		}
 	]
 }

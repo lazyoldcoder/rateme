@@ -734,11 +734,25 @@ form.addEventListener('submit', async e => {
     console.log("Submitting rating for business:", currentBusiness);
 
 
-    await fetch('/api/ratings', {
+    // await fetch('/api/ratings', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     business: currentBusiness,
+    //     rating: selectedRating,
+    //     comment,
+    //     username: currentUser.username,
+    //     email: currentUser.email,
+    //     phone: currentUser.phone,
+    //     timestamp
+    //   })
+    // });
+
+
+    await fetch(`/api/ratings?businessId=${encodeURIComponent(currentBusiness)}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        business: currentBusiness,
         rating: selectedRating,
         comment,
         username: currentUser.username,
@@ -746,7 +760,10 @@ form.addEventListener('submit', async e => {
         phone: currentUser.phone,
         timestamp
       })
-    });
+    });    
+
+
+
 
     // Reset form and selections
     commentInput.value = '';

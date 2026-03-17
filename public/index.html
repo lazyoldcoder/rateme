@@ -238,7 +238,7 @@ const FULL_OPEN = 0;                        // full screen
 
 
 
-
+sheet.style.bottom = `${-window.innerHeight}px`; // fully hidden
 
 
 
@@ -285,12 +285,20 @@ handle.addEventListener("touchstart", startDrag);
 
 let sheetBottom = HALF_OPEN; // start half-open
 
+// function startDrag(e) {
+//   isDragging = true;
+//   startY = e.touches ? e.touches[0].clientY : e.clientY;
+//   sheetBottom = parseFloat(sheet.style.bottom || HALF_OPEN);
+// }
+
+
 function startDrag(e) {
   isDragging = true;
   startY = e.touches ? e.touches[0].clientY : e.clientY;
-  sheetBottom = parseFloat(sheet.style.bottom || HALF_OPEN);
-}
 
+  const computed = window.getComputedStyle(sheet).bottom;
+  sheetBottom = parseFloat(computed) || HALF_OPEN;
+}
 
 
 // This moves the sheet down with your finger.
@@ -349,7 +357,8 @@ function endDrag() {
 // Add this small JS improvement.When opening the sheet:
 selector.addEventListener("click", () => {
   sheet.classList.add("open");
-  sheet.style.bottom = `${-window.innerHeight / 2}px`; // half-open
+  // sheet.style.bottom = `${-window.innerHeight / 2}px`; // half-open ################# 17 Mar
+  sheet.style.bottom = `${HALF_OPEN}px`;
   document.body.style.overflow = "hidden";
 });
 

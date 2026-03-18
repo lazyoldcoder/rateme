@@ -347,14 +347,14 @@ body.sheet-open {
  */
 
 
+/* 
 
-
-
+/* 
 #businessSheet {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: -100%;           /* fully hidden initially */
+  bottom: -100%;         
   min-height: 50vh;
   max-height: 90vh;
   background: white;
@@ -365,16 +365,16 @@ body.sheet-open {
   flex-direction: column;
   transition: bottom 0.3s ease;
   z-index: 1000;
-  overflow-y: auto;        /* allow scrolling */
-  touch-action: pan-y;     /* allow vertical scroll */
+  overflow-y: auto;     
+  touch-action: pan-y;  
 }
 
 body.sheet-open {
-  overflow: hidden;        /* lock page scroll */
+  overflow: hidden;     
 }
 
 
-
+/*  */
 
 .sheet-handle::before {
   top: -8px;
@@ -384,20 +384,20 @@ body.sheet-open {
 }
 
 
-
+ */
 
 
 
 
 /* Optional: better handle feedback */
-.sheet-handle {
+/* .sheet-handle {
   cursor: grab;
 }
 .sheet-handle:active {
   cursor: grabbing;
 }
 
-
+ */
 
 
 
@@ -417,7 +417,8 @@ body.sheet-open {
 } */
 
 /* invisible grab zone */
-.sheet-handle::before {
+
+/*.sheet-handle::before {
   content: "";
   position: absolute;
   top: -15px;
@@ -428,7 +429,7 @@ body.sheet-open {
 
 
 
-
+ */
 
 
 
@@ -478,4 +479,50 @@ body.sheet-open {
 #businessList {
   overflow-y: auto;
   flex: 1;
+}
+
+
+
+#businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100%;        /* fully hidden initially */
+  min-height: 50vh;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: bottom 0.3s ease;
+  z-index: 1000;
+  touch-action: none;  /* important for smooth dragging on mobile */
+  overflow-y: auto;    /* allow scrolling inside the sheet */
+}
+
+body.sheet-open {
+  overflow: hidden;    /* lock background scroll */
+}
+
+.sheet-handle {
+  width: 40px;
+  height: 5px;
+  background: #ccc;
+  border-radius: 3px;
+  margin: 0 auto 10px;
+  cursor: grab;
+  position: relative;
+  z-index: 1001;
+}
+
+.sheet-handle::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  left: -12px;
+  right: -12px;
+  pointer-events: none; /* no interference with taps */
 }

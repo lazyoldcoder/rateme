@@ -213,6 +213,18 @@ async function loadBusinesses() {
 loadBusinesses();
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /* DOM references */
 const businessContainer = document.getElementById('businessContainer');
 const ratingsList = document.getElementById('ratingsList');
@@ -221,30 +233,36 @@ const commentInput = document.getElementById('comment');
 const emojiBtns = document.querySelectorAll('.emoji-btn');
 const stars = document.querySelectorAll('.star');
 
-const sheet = document.getElementById("businessSheet");
-const selector = document.getElementById("businessSelector");
+let currentBusiness = localStorage.getItem('lastBusiness') || null;
+let selectedRating = 0;
+let lastSubmittedRating = null; // Track the last submitted rating for highlight
+
+
+
+
+
+
+
+
+
+// const sheet = document.getElementById("businessSheet");
+// const selector = document.getElementById("businessSelector");
 
 // new mar 15
-const businessList = document.getElementById("businessList");
-const selectedBizName = document.querySelector(".biz-name");
-const selectedBizLocation = document.querySelector(".biz-location");
+// const businessList = document.getElementById("businessList");
+// const selectedBizName = document.querySelector(".biz-name");
+// const selectedBizLocation = document.querySelector(".biz-location");
 
-const MIN_BOTTOM = 0;       // fully visible
-const MAX_BOTTOM = -window.innerHeight * 0.5; // start position (50vh)
+// const HALF_OPEN = -window.innerHeight / 2; // or just "-50vh" in px
+// const CLOSED = -window.innerHeight;         // fully hidden
+// const FULL_OPEN = 0;                        // full screen
 
-const HALF_OPEN = -window.innerHeight / 2; // or just "-50vh" in px
-const CLOSED = -window.innerHeight;         // fully hidden
-const FULL_OPEN = 0;                        // full screen
-
-
-
-sheet.style.bottom = `${-window.innerHeight}px`; // fully hidden
 
 
 
 
 // Identify the Handle
-const handle = document.querySelector(".sheet-handle");
+// const handle = document.querySelector(".sheet-handle");
 
 
 // selector.addEventListener("click", () => {
@@ -259,31 +277,23 @@ const handle = document.querySelector(".sheet-handle");
 
 
 // let currentBusiness = localStorage.getItem('lastBusiness') || businesses[0].id;
-let currentBusiness = localStorage.getItem('lastBusiness') || null;
-
-
-let selectedRating = 0;
-let lastSubmittedRating = null; // Track the last submitted rating for highlight
-
 
 
 
 
 // Add Drag State Variables
 // new mar 15
-let startY = 0;
-let currentY = 0;
-let isDragging = false;
+// let startY = 0;
+
+// let isDragging = false;
 
 
 
-// Drag Move
-handle.addEventListener("mousedown", startDrag);
-handle.addEventListener("touchstart", startDrag);
+// // Drag Move
+// handle.addEventListener("mousedown", startDrag);
+// handle.addEventListener("touchstart", startDrag);
 
 
-
-let sheetBottom = HALF_OPEN; // start half-open
 
 // function startDrag(e) {
 //   isDragging = true;
@@ -301,28 +311,28 @@ let sheetBottom = HALF_OPEN; // start half-open
 // }
 
 
-function startDrag(e) {
-  isDragging = true;
-  startY = e.touches ? e.touches[0].clientY : e.clientY;
+// function startDrag(e) {
+//   isDragging = true;
+//   startY = e.touches ? e.touches[0].clientY : e.clientY;
 
-  // get current bottom
-  const computed = window.getComputedStyle(sheet).bottom;
-  sheetBottom = parseFloat(computed) || CLOSED;
+//   // get current bottom
+//   const computed = window.getComputedStyle(sheet).bottom;
+//   sheetBottom = parseFloat(computed) || CLOSED;
 
-  // disable transition during drag
-  sheet.style.transition = 'none';
-}
-
-
+//   // disable transition during drag
+//   sheet.style.transition = 'none';
+// }
 
 
 
 
 
 
-// This moves the sheet down with your finger.
-document.addEventListener("mousemove", dragMove);
-document.addEventListener("touchmove", dragMove);
+
+
+// // This moves the sheet down with your finger.
+// document.addEventListener("mousemove", dragMove);
+// document.addEventListener("touchmove", dragMove);
 
 
 // function dragMove(e) {
@@ -353,17 +363,17 @@ document.addEventListener("touchmove", dragMove);
 // }
 
 
-function dragMove(e) {
-  if (!isDragging) return;
-  e.preventDefault();
+// function dragMove(e) {
+//   if (!isDragging) return;
+//   e.preventDefault();
 
-  currentY = e.touches ? e.touches[0].clientY : e.clientY;
-  const diff = startY - currentY; // drag up positive
+//   currentY = e.touches ? e.touches[0].clientY : e.clientY;
+//   const diff = startY - currentY; // drag up positive
 
-  let newBottom = sheetBottom + diff;
-  newBottom = Math.min(FULL_OPEN, Math.max(CLOSED, newBottom));
-  sheet.style.bottom = `${newBottom}px`;
-}
+//   let newBottom = sheetBottom + diff;
+//   newBottom = Math.min(FULL_OPEN, Math.max(CLOSED, newBottom));
+//   sheet.style.bottom = `${newBottom}px`;
+// }
 
 
 // function endDrag() {
@@ -423,27 +433,232 @@ function dragMove(e) {
 //   } else {
 //     closeSheet(); // fully closed
 //   }
+// // }
+
+// function endDrag() {
+//   if (!isDragging) return;
+//   isDragging = false;
+//   sheet.style.transition = 'bottom 0.3s ease';
+
+//   const sheetHeight = sheet.offsetHeight;
+//   const bottomPx = parseFloat(sheet.style.bottom);
+
+//   if (bottomPx > -sheetHeight * 0.25) {
+//     sheet.style.bottom = '0px'; // fully open
+//   } else if (bottomPx > -sheetHeight * 0.75) {
+//     sheet.style.bottom = `${-sheetHeight / 2}px`; // half open
+//   } else {
+//     closeSheet(); // fully closed
+//   }
 // }
+
+// document.addEventListener("mouseup", endDrag);
+// document.addEventListener("touchend", endDrag);
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const sheet = document.getElementById('businessSheet');
+// const handle = document.querySelector('.sheet-handle');
+
+// const CLOSED = -window.innerHeight;
+// const HALF_OPEN = -window.innerHeight / 2;
+// const FULL_OPEN = 0;
+
+// let startY = 0, sheetStartBottom = 0, isDragging = false;
+
+// function startDrag(e) {
+//   isDragging = true;
+//   startY = e.touches ? e.touches[0].clientY : e.clientY;
+//   const computed = window.getComputedStyle(sheet).bottom;
+//   sheetStartBottom = parseFloat(computed) || CLOSED;
+//   sheet.style.transition = 'none';
+// }
+
+// function dragMove(e) {
+//   if (!isDragging) return;
+//   const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+//   const diff = startY - currentY;
+//   let newBottom = sheetStartBottom + diff;
+//   newBottom = Math.min(FULL_OPEN, Math.max(CLOSED, newBottom));
+//   sheet.style.bottom = `${newBottom}px`;
+//   // Only prevent default if user is dragging more than 5px
+//   if (Math.abs(diff) > 5) e.preventDefault();
+// }
+
+// function endDrag() {
+//   if (!isDragging) return;
+//   isDragging = false;
+//   sheet.style.transition = 'bottom 0.3s ease';
+//   const current = parseFloat(sheet.style.bottom);
+//   const snapThreshold = window.innerHeight / 4;
+
+//   if (current > HALF_OPEN + snapThreshold) {
+//     sheet.style.bottom = `${FULL_OPEN}px`; // fully open
+//   } else if (current > CLOSED + snapThreshold) {
+//     sheet.style.bottom = `${HALF_OPEN}px`; // half open
+//   } else {
+//     sheet.style.bottom = `${CLOSED}px`; // closed
+//     document.body.classList.remove('sheet-open');
+//   }
+// }
+
+// handle.addEventListener('mousedown', startDrag);
+// handle.addEventListener('touchstart', startDrag);
+
+// document.addEventListener('mousemove', dragMove);
+// document.addEventListener('touchmove', dragMove, { passive: false });
+
+// document.addEventListener('mouseup', endDrag);
+// document.addEventListener('touchend', endDrag);
+
+// // Open sheet programmatically
+// document.getElementById('businessSelector').addEventListener('click', () => {
+//   sheet.style.bottom = `${HALF_OPEN}px`;
+//   document.body.classList.add('sheet-open');
+// });
+
+
+
+
+
+
+
+// const MIN_BOTTOM = 0;       // fully visible
+// const MAX_BOTTOM = -window.innerHeight * 0.5; // start position (50vh)
+// sheet.style.bottom = `${-window.innerHeight}px`; // fully hidden
+
+// let currentY = 0;
+// let sheetBottom = HALF_OPEN; // start half-open
+
+
+/* ======= Clean Sheet Module ======= */
+
+/* DOM references */
+const sheet = document.getElementById('businessSheet');
+const handle = document.querySelector('.sheet-handle');
+const selector = document.getElementById('businessSelector');
+const businessList = document.getElementById('businessList');
+const selectedBizName = document.querySelector('.biz-name');
+const selectedBizLocation = document.querySelector('.biz-location');
+
+/* Sheet positions */
+const CLOSED = -window.innerHeight;     // fully hidden
+const HALF_OPEN = -window.innerHeight / 2; // half screen
+const FULL_OPEN = 0;                     // fully open
+
+let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
+
+/* Initialize sheet fully closed */
+sheet.style.bottom = `${CLOSED}px`;
+
+/* Drag handlers */
+function startDrag(e) {
+  isDragging = true;
+  startY = e.touches ? e.touches[0].clientY : e.clientY;
+  sheetStartBottom = parseFloat(window.getComputedStyle(sheet).bottom);
+  sheet.style.transition = 'none';
+}
+
+function dragMove(e) {
+  if (!isDragging) return;
+
+  const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+  const diff = startY - currentY; // positive if dragging up
+
+  let newBottom = sheetStartBottom + diff;
+  newBottom = Math.min(FULL_OPEN, Math.max(CLOSED, newBottom));
+  sheet.style.bottom = `${newBottom}px`;
+
+  if (Math.abs(diff) > 5) e.preventDefault(); // prevent page scroll
+}
 
 function endDrag() {
   if (!isDragging) return;
   isDragging = false;
   sheet.style.transition = 'bottom 0.3s ease';
 
-  const sheetHeight = sheet.offsetHeight;
-  const bottomPx = parseFloat(sheet.style.bottom);
+  const current = parseFloat(sheet.style.bottom);
+  const snapThreshold = window.innerHeight / 4;
 
-  if (bottomPx > -sheetHeight * 0.25) {
-    sheet.style.bottom = '0px'; // fully open
-  } else if (bottomPx > -sheetHeight * 0.75) {
-    sheet.style.bottom = `${-sheetHeight / 2}px`; // half open
+  if (current > HALF_OPEN + snapThreshold) {
+    openSheet(FULL_OPEN);
+  } else if (current > CLOSED + snapThreshold) {
+    openSheet(HALF_OPEN);
   } else {
-    closeSheet(); // fully closed
+    closeSheet();
   }
 }
 
-document.addEventListener("mouseup", endDrag);
-document.addEventListener("touchend", endDrag);
+/* Open/close helpers */
+function openSheet(position) {
+  sheet.style.bottom = `${position}px`;
+  document.body.classList.add('sheet-open');
+}
+
+function closeSheet() {
+  sheet.style.bottom = `${CLOSED}px`;
+  document.body.classList.remove('sheet-open');
+}
+
+/* Event listeners */
+handle.addEventListener('mousedown', startDrag);
+handle.addEventListener('touchstart', startDrag, { passive: false });
+
+document.addEventListener('mousemove', dragMove);
+document.addEventListener('touchmove', dragMove, { passive: false });
+
+document.addEventListener('mouseup', endDrag);
+document.addEventListener('touchend', endDrag);
+
+/* Open sheet on business selector click */
+selector.addEventListener('click', () => {
+  openSheet(HALF_OPEN);
+});
+
+/* Close sheet if user taps outside */
+sheet.addEventListener('click', (e) => {
+  if (e.target === sheet) closeSheet();
+});
+
+/* Business selection */
+function selectBusiness(businessId) {
+  const biz = businesses.find(b => b.id === businessId);
+  if (!biz) return;
+
+  currentBusiness = biz.id;
+  localStorage.setItem('lastBusiness', currentBusiness);
+
+  selectedBizName.textContent = biz.name;
+  selectedBizLocation.textContent = biz.location;
+
+  fetchRatings(); // refresh ratings
+  closeSheet();
+}
+
+/* Handle clicks inside the business list */
+businessList.addEventListener('click', (e) => {
+  const row = e.target.closest('.business-row');
+  if (!row) return;
+  const bizId = row.dataset.id;
+  selectBusiness(bizId);
+});
+
+
+
+
+
+
+
 
 
 // Fix 3 — Lock Page Scroll While Sheet Is Open (Best UX)
@@ -461,22 +676,32 @@ document.addEventListener("touchend", endDrag);
 
 
 
-selector.addEventListener("click", () => {
-  sheet.classList.add("open");
-  sheet.style.bottom = `${HALF_OPEN}px`;
-  document.body.classList.add("sheet-open");
-});
+// selector.addEventListener("click", () => {
+//   sheet.classList.add("open");
+//   sheet.style.bottom = `${HALF_OPEN}px`;
+//   document.body.classList.add("sheet-open");
+// });
 
-function closeSheet() {
-  sheet.style.bottom = `${CLOSED}px`;
-  sheet.classList.remove("open");
-  document.body.classList.remove("sheet-open");
-}
+// function closeSheet() {
+//   sheet.style.bottom = `${CLOSED}px`;
+//   sheet.classList.remove("open");
+//   document.body.classList.remove("sheet-open");
+// }
 
 
-sheet.addEventListener('touchmove', (e) => {
-  if (isDragging) e.stopPropagation();
-}, { passive: false });
+// sheet.addEventListener('touchmove', (e) => {
+//   if (isDragging) e.stopPropagation();
+// }, { passive: false });
+
+
+
+
+
+
+
+
+
+
 
 
 

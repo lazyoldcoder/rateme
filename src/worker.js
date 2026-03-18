@@ -99,6 +99,47 @@ export default {
 
     //   } catch (err) {
 
+
+
+
+
+    // Ratings debug endpoint (DEV ONLY)
+
+    // if (url.pathname.startsWith("/api/ratings/debug")) {
+    //   try {
+    //     const businessId = url.searchParams.get("businessId");
+    //     if (!businessId) {
+    //       return new Response(JSON.stringify({ error: "businessId required" }), { 
+    //         status: 400, 
+    //         headers: { "Content-Type": "application/json" } 
+    //       });
+    //     }
+
+    //     const stub = env.MY_DURABLE_OBJECT.getByName(`ratings:${businessId}`);
+    //     const resp = await stub.fetch(new Request("http://dummy", { method: "GET" }));
+    //     const ratings = await resp.json();
+    //     return new Response(JSON.stringify(ratings, null, 2), {
+    //       headers: { "Content-Type": "application/json" },
+    //     });
+    //   } catch (err) {
+    //     return new Response(JSON.stringify({ error: err.message }), { 
+    //       status: 500, 
+    //       headers: { "Content-Type": "application/json" } 
+    //     });
+    //   }
+    // }
+
+    // End Ratings debug endpoint (DEV ONLY)
+
+
+
+
+
+
+
+
+
+
     // new 17 Mar  
     if (url.pathname.startsWith("/api/ratings")) {
       try {
@@ -252,11 +293,6 @@ if (url.pathname === "/api/businesses") {
     
     
     
-
-
-
-
-
 
 
 

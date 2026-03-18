@@ -406,26 +406,41 @@ function dragMove(e) {
 //   }
 // }
 
+// function endDrag() {
+//   if (!isDragging) return;
+//   isDragging = false;
+
+//   // restore transition
+//   sheet.style.transition = 'bottom 0.3s ease';
+
+//   const current = parseFloat(sheet.style.bottom);
+//   const snapThreshold = window.innerHeight / 4;
+
+//   if (current > FULL_OPEN - snapThreshold) {
+//     sheet.style.bottom = `${FULL_OPEN}px`; // fully open
+//   } else if (current > HALF_OPEN - snapThreshold) {
+//     sheet.style.bottom = `${HALF_OPEN}px`; // half open
+//   } else {
+//     closeSheet(); // fully closed
+//   }
+// }
+
 function endDrag() {
   if (!isDragging) return;
   isDragging = false;
-
-  // restore transition
   sheet.style.transition = 'bottom 0.3s ease';
 
-  const current = parseFloat(sheet.style.bottom);
-  const snapThreshold = window.innerHeight / 4;
+  const sheetHeight = sheet.offsetHeight;
+  const bottomPx = parseFloat(sheet.style.bottom);
 
-  if (current > FULL_OPEN - snapThreshold) {
-    sheet.style.bottom = `${FULL_OPEN}px`; // fully open
-  } else if (current > HALF_OPEN - snapThreshold) {
-    sheet.style.bottom = `${HALF_OPEN}px`; // half open
+  if (bottomPx > -sheetHeight * 0.25) {
+    sheet.style.bottom = '0px'; // fully open
+  } else if (bottomPx > -sheetHeight * 0.75) {
+    sheet.style.bottom = `${-sheetHeight / 2}px`; // half open
   } else {
     closeSheet(); // fully closed
   }
 }
-
-
 
 document.addEventListener("mouseup", endDrag);
 document.addEventListener("touchend", endDrag);

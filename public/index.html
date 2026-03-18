@@ -629,10 +629,7 @@ function renderBusinessList(list = businesses) {
 
     row.addEventListener("click", () => {
       selectBusiness(b.id);
-      // selectedBizName.textContent = `☕ ${b.name}`;
-      // selectedBizLocation.textContent = `${b.location}${distanceText ? " • " + distanceText : ""}`;
-      // sheet.classList.remove("open");
-      // document.body.style.overflow = ""; // unlock scroll
+      
     });
 
     businessList.appendChild(row);

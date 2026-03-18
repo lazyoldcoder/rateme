@@ -308,7 +308,7 @@ async function fetchRatings() {
       div.className = 'rating-card';
       div.innerHTML = `
         <div class="stars-display">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
-        <div><strong>${r.username}</strong></div>
+        <div><strong>${r.username} @ ${businessName}</strong></div>
         <div>${r.comment || '<em>No comment</em>'}</div>
         <div class="timestamp">${new Date(r.timestamp).toLocaleString()}</div>
       `;

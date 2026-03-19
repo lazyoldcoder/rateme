@@ -3,57 +3,17 @@
     font-family: "Helvetica Neue", sans-serif;
     margin: 0;
     padding: 1rem;
-    background: #bfadad8d;
-    color: #4a2626;
-    overflow-x: hidden;   /* prevents sideways movement */
+    background: #f9f9f9;
+    color: #333;
   }
- 
-  h1 { 
-    text-align: center;
-    margin: 0;
-    padding: 0; 
-  } 
-
-  
-#apptitleWrapper {
-  text-align: center; 
-}
-
-.app-title,
-.small-label,
-.tiny-label {
-  display: inline-block;     
-  vertical-align: baseline; 
-}
-
-.app-title {
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: #666;
-  margin: 0 0.5rem 0 0;     
-}
-
-.small-label {
-  font-size: 0.65rem;
-  color: #777;
-  margin: 0 0.5rem 0 0;
-}
-
-.tiny-label {
-  font-size: 0.65rem;
-  color: #777;
-
-}
-
-
-
+  h1 { text-align: center; margin-bottom: 1rem; font-size: 1.8rem; }
 
   /* Business Cards  watch height is less that that of .business-card, .emoji-btn {*/ 
   /* Mar6 redundant horiz scroll  */
   #businessContainer {
     overflow-x: auto;
-    padding-bottom: 0.3rem;  
-    margin-bottom: 0.3rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
   }
   
   
@@ -95,48 +55,25 @@
     padding: 1rem;
     border-radius: 12px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    margin-bottom: 0.1rem;
+    margin-bottom: 1.5rem;
   }
-  label { 
-    display: block; 
-    margin-top: 0rem; 
-    font-weight: bold; 
-  }
-  
-  textarea {
-    width: 100%; 
-    padding: 0.5rem; 
-    margin: 0.2rem 1rem 0rem 0rem; 
-    border-radius: 6px; 
-    border: 1px solid #ccc; 
-  }
+  label { display: block; margin-top: 0.5rem; font-weight: bold; }
+  textarea { width: 100%; padding: 0.5rem; margin-top: 0.2rem; border-radius: 6px; border: 1px solid #ccc; }
 
   .stars {
     display: flex;
     gap: 0.3rem;
     margin-top: 0.3rem;
   }
-  /* .star {
+  .star {
     font-size: 1.5rem;
     cursor: pointer;
     color: #ccc;
-  } */
-
-
-  .star {
-    font-size: 2.6rem;
-    cursor: pointer;
-    color: #ccc;
-    padding: 5px 10.7px 5px 10.7px;  
-    /* display: inline-flex;   */
   }
-
-
-
-  /* .star.selected { color: gold; } */
+  .star.selected { color: gold; }
 
   button {
-    margin-top: 0;
+    margin-top: 1rem;
     padding: 0.7rem 1.2rem;
     border: none;
     border-radius: 8px;
@@ -154,14 +91,14 @@
   }
   .rating-card {
     background: #fff;
-    padding: 0.5rem 1rem;
+    padding: 0.8rem 1rem;
     border-radius: 10px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   }
   
   .rating-card .stars-display {
     color: gold;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
   .rating-card .timestamp {
     font-size: 0.75rem;
@@ -194,17 +131,11 @@
 }
 
 
-.star.selected {
-  color: gold;
-  
-}
-
-
 .emoji-rating {
   display: flex;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-top: 0.1rem;
+  margin-top: 0.5rem;
 }
 
 .emoji-btn {
@@ -231,6 +162,16 @@
 }
 
 
+.star {
+  font-size: 2.6rem;
+  color: #ccc;
+  padding: 10.7px;  
+  /* display: inline-flex;   */
+}
+.star.selected {
+  color: gold;
+  
+}
 
 .business-card,
 .emoji-btn {
@@ -270,11 +211,9 @@
 
 #businessSelector {
   background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   border-radius: 12px;
   padding: 0.8rem 1rem;
-  margin-top: 0.3rem;
-  margin-bottom: 0.3rem;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -291,18 +230,10 @@
 
 
 
-/* #selectedBusiness {
-  display: flex;
-  flex-direction: column;
-} */
-
 #selectedBusiness {
   display: flex;
-  align-items: baseline;   /* vertically centers the text */
-  gap: 0.5rem;           /* space between name and location */
-  flex-wrap: wrap;       /* optional, keeps it from overflowing on small screens */
+  flex-direction: column;
 }
-
 
 .biz-name {
   font-weight: bold;
@@ -318,6 +249,90 @@
 }
 
 
+/*  
+body.sheet-open {
+  overflow: hidden;
+  touch-action: none;
+}  */
+ 
+
+ 
+ 
+/* #businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100%;
+  
+  
+  min-height: 50vh; 
+  max-height: 90vh; 
+
+
+
+  height: auto;
+  overflow-y: auto; 
+
+
+  background: white;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  transition: bottom 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  will-change: bottom;
+}  */
+
+
+/* stops background scroll in sheet area */
+/* #businessSheet.open {
+  bottom: 0;
+} */
+
+
+/* 
+#businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100vh; 
+  max-height: 90vh;    
+  background: white;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: bottom 0.3s ease;
+  will-change: bottom;
+  overflow-y: auto;        
+} */
+
+
+
+/* 
+#businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100vh;           
+  min-height: 50vh;
+  max-height: 90vh;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: bottom 0.3s ease;  
+  z-index: 1000;
+}
+
+
+
+
 
 
 
@@ -329,7 +344,37 @@ body.sheet-open {
   touch-action: pan-y;
   touch-action: none;
 }
- 
+ */
+
+
+/* 
+
+/* 
+#businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -100%;         
+  min-height: 50vh;
+  max-height: 90vh;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: bottom 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;     
+  touch-action: pan-y;  
+}
+
+body.sheet-open {
+  overflow: hidden;     
+}
+
+
+/*  */
 
 .sheet-handle::before {
   top: -8px;
@@ -339,7 +384,53 @@ body.sheet-open {
 }
 
 
- 
+ */
+
+
+
+
+/* Optional: better handle feedback */
+/* .sheet-handle {
+  cursor: grab;
+}
+.sheet-handle:active {
+  cursor: grabbing;
+}
+
+ */
+
+
+
+
+
+
+/* 
+
+.sheet-handle {
+  width: 40px;
+  height: 5px;
+  background: #ccc;
+  border-radius: 3px;
+  margin: 10px auto;
+  cursor: grab;
+  position: relative;
+} */
+
+/* invisible grab zone */
+
+/*.sheet-handle::before {
+  content: "";
+  position: absolute;
+  top: -15px;
+  bottom: -15px;
+  left: -30px;
+  right: -30px;
+}
+
+
+
+ */
+
 
 
 
@@ -434,144 +525,4 @@ body.sheet-open {
   left: -12px;
   right: -12px;
   pointer-events: none; /* no interference with taps */
-}
-
-
-
-
-/* Login Container */
-
-#loginContainer {
-  display: flex;
-  box-sizing: border-box;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-#loginContainer label {
-  white-space: nowrap;
-  font-weight: bold;
-  line-height: 32px;
-  align-self: center;
-  /* transform: translateY(-1px); */
-}
-
-
-#usernameWrapper {
-  display: flex;
-  gap: 4px;
-  margin-right: auto;    
-  padding-left: 2px;
-  flex: 1; 
-  min-width: 0;
-}
-
-
-#usernameWrapper label {
-  font-size: 0.7rem;        /* change size */
-  color: #333;            /* change color */
-  font-weight: 600;       /* boldness */
-  line-height: 1.2;       /* spacing between lines if multiline */
-}
-
-
-
-
-
-
-#usernameInput {
-  flex: 1;              /* input expands to fill space */
-  min-width: 0;
-  width: 100%;
-  padding: 5px;
-  border: 0px solid #d81eb0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-size: 0.9rem;
-}
-
-#buttonsWrapper {
-  display: flex;
-  /* max-width: 100%; */
-  gap: 8px;
-  margin-left: auto;    /* pushes buttons to the right edge */
-  /* padding-right: 2px; */
-  flex-shrink: 0; /* keeps buttons together */
-}
-
-#reRegisterBtn,
-#loginBtn {
-  padding: 6px 12px;
-  background: rgb(17, 156, 168);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-
-
-
-/* Submit Button */
-
-/* #submitBtn {
-  padding: 6px 2px 6px 2px;
-  align-self: flex-end;   
-  margin-left: auto;
-  font-size: 0.9rem;
-  white-space: nowrap;
-} */
-
-/* Push submit button to right */
-#submitBtn {
-  /* margin-left: auto;          */
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  border: none;
-  border-radius: 8px;
-  background: rgb(249, 189, 9);
-  color: white;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-/* All Ratings  */
-
-.ratings-title {
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-weight: 600;
-  margin: 0 0 0px 0;
-  padding-left: 6px;
-  color: #666;
-}
-
-
-
-/* Make the form vertical flex layout */
-#ratingForm {
-  display: flex;
-  flex-direction: column;   /* stack label, textarea, button */
-  gap: 0.5rem;              /* optional spacing */
-  margin-top: 0.3rem;
-}
-
-
-
-
-.comment-header {
-  display: flex;
-  justify-content: space-between; /* pushes button to the right */
-  align-items: center;            /* vertical alignment */
-  margin-bottom: 0.3rem;          /* optional spacing to textarea */
-}
-
-
-
-.comment-wrapper {
-  padding-right: 0.3rem;  /* space on right side */
-}
-.comment-wrapper textarea {
-  width: 100%;
-  box-sizing: border-box;
 }

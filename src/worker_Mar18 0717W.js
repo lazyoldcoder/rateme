@@ -1,0 +1,304 @@
+// SECTION 1 Durable Object class ------------------------------------------------------------------
+
+export class MyDurableObject {
+  constructor(state, env) {
+    this.state = state;
+    this.env = env;
+  }
+
+
+  // async fetch(request) {
+  //   let ratings = (await this.state.storage.get("ratings")) || [];
+  //   const url = new URL(request.url);
+
+  //   if (request.method === "POST") {
+  //     try {
+  //       const newRating = await request.json();
+  //       newRating.id = ratings.length ? ratings[ratings.length - 1].id + 1 : 1;
+  //       ratings.push(newRating);
+  //       await this.state.storage.put("ratings", ratings);
+  //       return new Response(JSON.stringify(newRating), {
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+  //     } catch (err) {
+  //       return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+  //     }
+  //   }
+
+  //   return new Response(JSON.stringify(ratings), {
+  //     headers: { "Content-Type": "application/json" },
+  //   });
+  // }
+
+
+  // Make your Durable Object always return an array, even if empty or accidentally stored as an object:
+  async fetch(request) {
+    let ratings = await this.state.storage.get("ratings");
+
+    if (!Array.isArray(ratings)) {
+        // Convert old object-style ratings to array
+        if (ratings && typeof ratings === "object") {
+            ratings = Object.values(ratings);
+        } else {
+            ratings = [];
+        }
+        await this.state.storage.put("ratings", ratings);
+    }
+
+    if (request.method === "POST") {
+        try {
+            const newRating = await request.json();
+            newRating.id = ratings.length ? ratings[ratings.length - 1].id + 1 : 1;
+            newRating.timestamp = newRating.timestamp || new Date().toISOString();
+            ratings.push(newRating);
+            await this.state.storage.put("ratings", ratings);
+            return new Response(JSON.stringify(newRating), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (err) {
+            return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+        }
+    }
+
+    return new Response(JSON.stringify(ratings), {
+        headers: { "Content-Type": "application/json" },
+    });
+  }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --- Default Worker export ---
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+
+    // Favicon
+    if (url.pathname === "/favicon.ico") return new Response(null, { status: 204 });
+
+
+
+    // Ratings
+    // if (url.pathname.startsWith("/api/ratings")) {
+    //   try {
+    //     const stub = env.MY_DURABLE_OBJECT.getByName("rateme");
+    //     return await stub.fetch(request);
+
+    //   } catch (err) {
+
+
+
+
+
+    // Ratings debug endpoint (DEV ONLY)
+
+    // if (url.pathname.startsWith("/api/ratings/debug")) {
+    //   try {
+    //     const businessId = url.searchParams.get("businessId");
+    //     if (!businessId) {
+    //       return new Response(JSON.stringify({ error: "businessId required" }), { 
+    //         status: 400, 
+    //         headers: { "Content-Type": "application/json" } 
+    //       });
+    //     }
+
+    //     const stub = env.MY_DURABLE_OBJECT.getByName(`ratings:${businessId}`);
+    //     const resp = await stub.fetch(new Request("http://dummy", { method: "GET" }));
+    //     const ratings = await resp.json();
+    //     return new Response(JSON.stringify(ratings, null, 2), {
+    //       headers: { "Content-Type": "application/json" },
+    //     });
+    //   } catch (err) {
+    //     return new Response(JSON.stringify({ error: err.message }), { 
+    //       status: 500, 
+    //       headers: { "Content-Type": "application/json" } 
+    //     });
+    //   }
+    // }
+
+    // End Ratings debug endpoint (DEV ONLY)
+
+
+
+
+
+
+
+
+
+
+    // new 17 Mar  
+    if (url.pathname.startsWith("/api/ratings")) {
+      try {
+
+        const businessId = url.searchParams.get("businessId");
+        if (!businessId) {
+          return new Response(JSON.stringify({ error: "businessId required" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+
+        const stub = env.MY_DURABLE_OBJECT.getByName(`ratings:${businessId}`);
+        return await stub.fetch(request);
+
+      } catch (err) {
+
+
+
+
+
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    }
+
+
+
+    // ================= USERS API (START) =================
+    
+    if (url.pathname === "/api/users") {
+
+      // ---------- POST: create OR update user ----------
+      if (request.method === "POST") {
+        const { username, email, phone } = await request.json();
+        if (!username) return new Response(
+          JSON.stringify({ username: null }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+
+        // merge with existing user if present
+        const existing = await env.USERS_KV.get(username, { type: "json" }) || {};
+        const user = {
+          username,
+          email: email || existing.email || "",
+          phone: phone || existing.phone || ""
+        };
+
+        await env.USERS_KV.put(username, JSON.stringify(user));
+
+        return new Response(JSON.stringify(user), {
+          headers: {
+            "Content-Type": "application/json",
+           
+            // "Set-Cookie": `rateme_user=${encodeURIComponent(username)}; Path=/; Max-Age=${10*365*24*60*60}`
+            // "Set-Cookie": `rateme_user=${encodeURIComponent(username)};
+            //   Path=/;
+            //   Max-Age=${10 * 365 * 24 * 60 * 60};
+            //   Secure;
+            //   SameSite=Lax`
+
+            "Set-Cookie": `rateme_user=${encodeURIComponent(username)}; Path=/; Max-Age=${10 * 365 * 24 * 60 * 60}; Secure; SameSite=Lax`
+          
+          }
+        });
+      }
+
+      // ---------- GET: fetch user ----------
+      const cookieHeader = request.headers.get("Cookie") || "";
+      let username = (cookieHeader.match(/rateme_user=([^;]+)/) || [])[1];
+      if (!username) username = url.searchParams.get("username");
+      if (!username) return new Response(JSON.stringify({ username: null }), { headers: { "Content-Type": "application/json" } });
+
+      const user = await env.USERS_KV.get(username, { type: "json" });
+      return new Response(JSON.stringify(user || { username: null }), { headers: { "Content-Type": "application/json" } });
+    }
+
+
+
+
+
+
+
+
+
+// ---------------- BUSINESSES API /api/businesses ----------------
+if (url.pathname === "/api/businesses") {
+
+  if (request.method === "GET") {
+    // fetch all businesses from KV
+    const keys = await env.BUSINESSES_KV.list();
+    const allBusinesses = [];
+
+    for (const k of keys.keys) {
+      const data = await env.BUSINESSES_KV.get(k.name, { type: "json" });
+      if (data) allBusinesses.push(data);
+    }
+
+    return new Response(JSON.stringify(allBusinesses), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
+  if (request.method === "POST") {
+    const business = await request.json();
+
+    // Validate email
+    if (!business.email) {
+      return new Response(JSON.stringify({ error: "Email required" }), { status: 400 });
+    }
+
+    // Use the business ID directly as the KV key
+    const key = business.id;
+
+    // Optionally, check if it already exists
+    const existing = await env.BUSINESSES_KV.get(key, { type: "json" });
+    if (!existing) {
+      await env.BUSINESSES_KV.put(key, JSON.stringify(business));
+    } else {
+      // Optionally update existing record if needed
+      await env.BUSINESSES_KV.put(key, JSON.stringify(business));
+    }
+
+    return new Response(JSON.stringify(business), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+
+
+
+
+
+
+    // Static assets fallback
+    try {
+      return await fetch(request);
+    } catch (err) {
+      return new Response("Not found", { status: 404 });
+    }
+  },
+};
+
+    
+    
+    
+    
+    
+
+
+
+
+
+
+
+
+

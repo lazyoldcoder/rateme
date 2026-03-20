@@ -41,6 +41,11 @@ async function loadBusinesses() {
   }
 }
 
+
+
+
+
+
 /* ======== 4 Render Business Cards ======== */
 const cardsWrapper = document.createElement('div');
 cardsWrapper.className = 'cards-wrapper';
@@ -61,21 +66,85 @@ function renderBusinessCards() {
   });
 }
 
-/* ======== 5 Render Business List ======== */
+// /* ======== 5 Render Business List ======== */
+// function renderBusinessList(list = currentList) {
+//   businessList.innerHTML = "";
+//   if (!list.length) {
+//     businessList.innerHTML = '<div class="business-row"><em>No businesses found</em></div>';
+//     return;
+//   }
+//   list.forEach(b => {
+//     const row = document.createElement('div');
+//     row.className = 'business-row';
+//     row.innerHTML = `<div class="name">☕ ${b.name}</div><div class="location">${b.location}</div>`;
+//     row.addEventListener('click', () => selectBusiness(String(b.id)));
+//     businessList.appendChild(row);
+//   });
+// }
+
+
+
+
+// /* ======== 5 Render Business List (with distance) ======== */
+// function renderBusinessList(list = currentList) {
+//   businessList.innerHTML = "";
+//   if (!list.length) {
+//     businessList.innerHTML = '<div class="business-row"><em>No businesses found</em></div>';
+//     return;
+//   }
+
+//   list.forEach(b => {
+//     const row = document.createElement('div');
+//     row.className = 'business-row';
+
+//     // Compute distance if we have location
+//     let distanceText = '';
+//     if (userLat != null && userLng != null && b.lat != null && b.lng != null) {
+//       const meters = getDistance(userLat, userLng, b.lat, b.lng);
+//       distanceText = ` • ${(meters/1000).toFixed(2)} km`;
+//     }
+
+//     row.innerHTML = `
+//       <div class="name">☕ ${b.name}</div>
+//       <div class="location">${b.location}${distanceText}</div>
+//     `;
+
+//     row.addEventListener('click', () => selectBusiness(String(b.id)));
+//     businessList.appendChild(row);
+//   });
+// }
+
+
+/* ======== 5 Render Business List (with distance) ======== */
 function renderBusinessList(list = currentList) {
   businessList.innerHTML = "";
   if (!list.length) {
     businessList.innerHTML = '<div class="business-row"><em>No businesses found</em></div>';
     return;
   }
+
   list.forEach(b => {
     const row = document.createElement('div');
     row.className = 'business-row';
-    row.innerHTML = `<div class="name">☕ ${b.name}</div><div class="location">${b.location}</div>`;
+
+    // Distance display
+    let distanceText = '';
+    if (userLat != null && userLng != null && b.lat != null && b.lng != null) {
+      const meters = getDistance(userLat, userLng, b.lat, b.lng);
+      distanceText = ` • ${(meters/1000).toFixed(2)} km`;
+    }
+
+    row.innerHTML = `
+      <div class="name">☕ ${b.name}</div>
+      <div class="location">${b.location}${distanceText}</div>
+    `;
     row.addEventListener('click', () => selectBusiness(String(b.id)));
     businessList.appendChild(row);
   });
 }
+
+
+
 
 /* ======== 6 Open / Close Sheet ======== */
 // function openSheet() {
@@ -226,20 +295,53 @@ form.addEventListener('submit', async e => {
 
 //start target code for module geo.js
 
-/* ======== 11 Near Me Location ======== */
+// /* ======== 11 Near Me Location ======== */
+// function getCurrentLocationAndSort() {
+//   if (!navigator.geolocation) return alert("Geolocation not supported");
+//   navigator.geolocation.getCurrentPosition(pos => {
+//     userLat = pos.coords.latitude;
+//     userLng = pos.coords.longitude;
+//     gpsDisplay.textContent = `Current location: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
+
+//     currentList = [...businesses].sort((a,b) => getDistance(userLat,userLng,a.lat,a.lng)-getDistance(userLat,userLng,b.lat,b.lng));
+//     renderBusinessList(currentList);
+//   }, err => alert("Failed to get location: " + err.message), { enableHighAccuracy:true });
+// }
+
+// document.getElementById("nearMeBtn").addEventListener("click", getCurrentLocationAndSort);
+
+// /* ======== 12 Haversine Distance ======== */
+// function getDistance(lat1, lon1, lat2, lon2) {
+//   const R = 6371e3; // meters
+//   const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
+//   const Δφ = (lat2-lat1)*Math.PI/180, Δλ = (lon2-lon1)*Math.PI/180;
+//   const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+//   return R * c;
+// }
+
+
+//end target code for module geo.js
+
+/* ======== 11 Near Me Location & Auto-Sort ======== */
 function getCurrentLocationAndSort() {
   if (!navigator.geolocation) return alert("Geolocation not supported");
+  
   navigator.geolocation.getCurrentPosition(pos => {
     userLat = pos.coords.latitude;
     userLng = pos.coords.longitude;
     gpsDisplay.textContent = `Current location: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
 
-    currentList = [...businesses].sort((a,b) => getDistance(userLat,userLng,a.lat,a.lng)-getDistance(userLat,userLng,b.lat,b.lng));
-    renderBusinessList(currentList);
-  }, err => alert("Failed to get location: " + err.message), { enableHighAccuracy:true });
-}
+    // Sort businesses by distance (closest first)
+    currentList = [...businesses].sort((a, b) => {
+      if (a.lat == null || a.lng == null) return 1;  // put unknown coords at end
+      if (b.lat == null || b.lng == null) return -1;
+      return getDistance(userLat, userLng, a.lat, a.lng) - getDistance(userLat, userLng, b.lat, b.lng);
+    });
 
-document.getElementById("nearMeBtn").addEventListener("click", getCurrentLocationAndSort);
+    renderBusinessList(currentList);
+  }, err => alert("Failed to get location: " + err.message), { enableHighAccuracy: true });
+}
 
 /* ======== 12 Haversine Distance ======== */
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -251,10 +353,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-
-//end target code for module geo.js
-
-
+nearMeBtn.addEventListener("click", getCurrentLocationAndSort);
 
 
 

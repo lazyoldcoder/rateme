@@ -37,21 +37,29 @@ const usernameInput = document.getElementById('usernameInput');
 
 /* ======== 3 Sheet Positions ======== */
 // Convert mm to px (approx. 1mm ≈ 3.78px)
-const VISIBLE_MM = 95;
-const VISIBLE_PX = VISIBLE_MM * 3.78;  // ≈ 359px
+// const VISIBLE_MM = 95;
+// const VISIBLE_PX = VISIBLE_MM * 3.78;  // ≈ 359px
 
 // Get sheet height dynamically
-const SHEET_HEIGHT_PX = sheet.offsetHeight || window.innerHeight;
+// const SHEET_HEIGHT_PX = sheet.offsetHeight || window.innerHeight;
 
-const CLOSED = -SHEET_HEIGHT_PX;                   // fully hidden
-const HALF_OPEN = -(SHEET_HEIGHT_PX - VISIBLE_PX); // pops up 95mm
-const FULL_OPEN = 0;
+// const CLOSED = -SHEET_HEIGHT_PX;                   // fully hidden
+// const HALF_OPEN = -(SHEET_HEIGHT_PX - VISIBLE_PX); // pops up 95mm
+// const FULL_OPEN = 0;
+
+// let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
+// sheet.style.bottom = `${CLOSED}px`;
+
+
+
+
+/* ======== Sheet Positions ======== */
+const CLOSED = -window.innerHeight;   // fully hidden
+const HALF_OPEN = 95;                 // 95px above bottom
+const FULL_OPEN = 0;                   // fully open
 
 let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
 sheet.style.bottom = `${CLOSED}px`;
-
-
-
 
 
 /* ======== 4 Sheet Drag Functions ======== */

@@ -54,12 +54,24 @@ const usernameInput = document.getElementById('usernameInput');
 
 
 /* ======== Sheet Positions ======== */
-const CLOSED = -window.innerHeight;   // fully hidden
-const HALF_OPEN = 95;                 // 95px above bottom
-const FULL_OPEN = 0;                   // fully open
+// const CLOSED = -window.innerHeight;   // fully hidden
+// const HALF_OPEN = 95;                 // 95px above bottom
+// const FULL_OPEN = 0;                   // fully open
+
+// let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
+// sheet.style.bottom = `${CLOSED}px`;
+
+
+
+/* ======== 3Sheet Positions ======== */
+const FULL_OPEN = 0; // fully open
+const SHEET_HEIGHT = sheet.offsetHeight || window.innerHeight; 
+const HALF_OPEN = -(SHEET_HEIGHT - 95); // 95px visible
+const CLOSED = -SHEET_HEIGHT;           // fully hidden
 
 let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
 sheet.style.bottom = `${CLOSED}px`;
+
 
 
 /* ======== 4 Sheet Drag Functions ======== */

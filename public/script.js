@@ -219,6 +219,13 @@ form.addEventListener('submit', async e => {
   }
 });
 
+
+
+
+
+
+//start target code for module geo.js
+
 /* ======== 11 Near Me Location ======== */
 function getCurrentLocationAndSort() {
   if (!navigator.geolocation) return alert("Geolocation not supported");
@@ -243,6 +250,16 @@ function getDistance(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return R * c;
 }
+
+
+//end target code for module geo.js
+
+
+
+
+
+
+
 
 /* ======== 13 User Fetch & Init ======== */
 async function fetchUser(firstTimeName=null) {

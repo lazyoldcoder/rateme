@@ -72,16 +72,41 @@ function dragMove(e) {
   if (Math.abs(diff) > 5) e.preventDefault();
 }
 
+// function endDrag() {
+//   if (!isDragging) return;
+//   isDragging = false;
+//   sheet.style.transition = 'bottom 0.3s ease';
+//   const current = parseFloat(sheet.style.bottom);
+//   const snapThreshold = window.innerHeight / 4;
+//   if (current > HALF_OPEN + snapThreshold) openSheet(FULL_OPEN);
+//   else if (current > CLOSED + snapThreshold) openSheet(HALF_OPEN);
+//   else closeSheet();
+// }
+
 function endDrag() {
   if (!isDragging) return;
   isDragging = false;
   sheet.style.transition = 'bottom 0.3s ease';
   const current = parseFloat(sheet.style.bottom);
-  const snapThreshold = window.innerHeight / 4;
-  if (current > HALF_OPEN + snapThreshold) openSheet(FULL_OPEN);
-  else if (current > CLOSED + snapThreshold) openSheet(HALF_OPEN);
-  else closeSheet();
+
+  // Find the closest snap point
+  const positions = [FULL_OPEN, HALF_OPEN, CLOSED];
+  let closest = positions[0];
+  let minDist = Math.abs(current - positions[0]);
+  for (let i = 1; i < positions.length; i++) {
+    const dist = Math.abs(current - positions[i]);
+    if (dist < minDist) {
+      closest = positions[i];
+      minDist = dist;
+    }
+  }
+
+  // Snap to the closest
+  openSheet(closest);
 }
+
+
+
 
 function openSheet(position) {
   sheet.style.bottom = `${position}px`;

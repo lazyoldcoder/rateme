@@ -1,5 +1,5 @@
 
-/* ======== Variables ======== */
+/* ======== 1 Variables ======== */
 let businesses = [];
 let currentBusiness = null;   // declare first, undefined until load
 let selectedRating = 0;
@@ -8,7 +8,7 @@ let currentUser = null;
 let userLat = null;
 let userLng = null;
 
-/* ======== DOM References ======== */
+/* ======== 2 DOM References ======== */
 const businessContainer = document.getElementById('businessContainer');
 const ratingsList = document.getElementById('ratingsList');
 const form = document.getElementById('ratingForm');
@@ -27,14 +27,34 @@ const gpsDisplay = document.getElementById("gpsDisplay");
 const usernameInput = document.getElementById('usernameInput');
 
 
-/* ======== Sheet Positions ======== */
-const CLOSED = -window.innerHeight;
-const HALF_OPEN = -window.innerHeight / 2;
+// /* ======== 3 Sheet Positions ======== */
+// const CLOSED = -window.innerHeight;
+// const HALF_OPEN = -window.innerHeight / 2;
+// const FULL_OPEN = 0;
+// let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
+// sheet.style.bottom = `${CLOSED}px`;
+
+
+/* ======== 3 Sheet Positions ======== */
+// Convert mm to px (approx. 1mm ≈ 3.78px)
+const VISIBLE_MM = 95;
+const VISIBLE_PX = VISIBLE_MM * 3.78;  // ≈ 359px
+
+// Get sheet height dynamically
+const SHEET_HEIGHT_PX = sheet.offsetHeight || window.innerHeight;
+
+const CLOSED = -SHEET_HEIGHT_PX;                   // fully hidden
+const HALF_OPEN = -(SHEET_HEIGHT_PX - VISIBLE_PX); // pops up 95mm
 const FULL_OPEN = 0;
+
 let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
 sheet.style.bottom = `${CLOSED}px`;
 
-/* ======== Sheet Drag Functions ======== */
+
+
+
+
+/* ======== 4 Sheet Drag Functions ======== */
 function startDrag(e) {
   isDragging = true;
   startY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -73,7 +93,7 @@ function closeSheet() {
   document.body.classList.remove('sheet-open');
 }
 
-/* ======== Event Listeners for Sheet ======== */
+/* ======== 5 Event Listeners for Sheet ======== */
 handle.addEventListener('mousedown', startDrag);
 handle.addEventListener('touchstart', startDrag, { passive: false });
 document.addEventListener('mousemove', dragMove);
@@ -84,7 +104,7 @@ selector.addEventListener('click', () => openSheet(HALF_OPEN));
 sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
 sheet.addEventListener('touchmove', e => { if (!isDragging) return; e.stopPropagation(); }, { passive: false });
 
-/* ======== Load Businesses ======== */
+/* ======== 6 Load Businesses ======== */
 async function loadBusinesses() {
   try {
     const res = await fetch('/api/businesses');
@@ -105,7 +125,7 @@ async function loadBusinesses() {
 
 loadBusinesses();
 
-/* ======== Render Business Cards ======== */
+/* ======== 7 Render Business Cards ======== */
 const cardsWrapper = document.createElement('div');
 cardsWrapper.className = 'cards-wrapper';
 businessContainer.appendChild(cardsWrapper);
@@ -125,7 +145,7 @@ function renderBusinessCards() {
   });
 }
 
-/* ======== Render Business List (Search & Distance) ======== */
+/* ======== 8 Render Business List (Search & Distance) ======== */
 function renderBusinessList(list = businesses) {
   businessList.innerHTML = "";
   list.forEach(b => {
@@ -146,14 +166,14 @@ function renderBusinessList(list = businesses) {
   if (!list.length) businessList.innerHTML = `<div class="business-row"><em>No businesses found</em></div>`;
 }
 
-/* ======== Search Input ======== */
+/* ======== 9 Search Input ======== */
 document.getElementById("businessSearch").addEventListener("input", () => {
   const query = document.getElementById("businessSearch").value.toLowerCase().trim();
   const filtered = businesses.filter(b => b.name.toLowerCase().includes(query));
   renderBusinessList(filtered);
 });
 
-/* ======== Select Business ======== */
+/* ======== 10 Select Business ======== */
 function selectBusiness(id) {
   const biz = businesses.find(b => b.id === id);
   if (!biz) return;
@@ -168,7 +188,7 @@ function selectBusiness(id) {
   closeSheet();
 }
 
-/* ======== Emoji Rating ======== */
+/* ======== 11 Emoji Rating ======== */
 emojiBtns.forEach(btn => btn.addEventListener('click', e => {
   e.preventDefault();
   selectedRating = parseInt(btn.dataset.value);
@@ -176,7 +196,7 @@ emojiBtns.forEach(btn => btn.addEventListener('click', e => {
   stars.forEach(s => s.classList.toggle('selected', s.dataset.value <= selectedRating));
 }));
 
-/* ======== Fetch Ratings ======== */
+/* ======== 12 Fetch Ratings ======== */
 async function fetchRatings() {
   if (!currentBusiness) return;
   try {
@@ -203,7 +223,7 @@ async function fetchRatings() {
   }
 }
 
-/* ======== Submit Rating ======== */
+/* ======== 13 Submit Rating ======== */
 form.addEventListener('submit', async e => {
   e.preventDefault();
   if (!currentUser) return alert('Please log in first');
@@ -236,7 +256,7 @@ form.addEventListener('submit', async e => {
   }
 });
 
-/* ======== Location & Near Me ======== */
+/* ======== 14 Location & Near Me ======== */
 function getCurrentLocationAndSort() {
   if (!navigator.geolocation) return alert("Geolocation not supported");
   navigator.geolocation.getCurrentPosition(pos => {
@@ -258,7 +278,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
   return R*2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-/* ======== User Fetch & Init ======== */
+/* ======== 15 User Fetch & Init ======== */
 async function fetchUser(firstTimeName=null) {
   let url = "/api/users";
   if (!currentUser && firstTimeName) url += `?username=${encodeURIComponent(firstTimeName)}`;
@@ -298,7 +318,7 @@ async function init() {
 
 init();
 
-/* ======== Re-register button ======== */
+/* ======== 16 Re-register button ======== */
 document.getElementById('reRegisterBtn').addEventListener('click', async () => {
   currentUser = null;
   document.cookie = "rateme_user=; Path=/; Max-Age=0";

@@ -439,7 +439,11 @@ body.sheet-open {
 
 
 
-/* Login Container */
+
+
+
+
+/* LOGIN Container */                                                       
 
 #loginContainer {
   display: flex;
@@ -458,6 +462,8 @@ body.sheet-open {
 }
 
 
+/* 
+
 #usernameWrapper {
   display: flex;
   gap: 4px;
@@ -467,29 +473,66 @@ body.sheet-open {
   min-width: 0;
 }
 
-
 #usernameWrapper label {
-  font-size: 0.7rem;        /* change size */
-  color: #333;            /* change color */
-  font-weight: 600;       /* boldness */
-  line-height: 1.2;       /* spacing between lines if multiline */
+  font-size: 0.7rem;        
+  color: #333;          
+  font-weight: 600;       
+  line-height: 1.2;       
 }
 
-
-
-
-
-
 #usernameInput {
-  flex: 1;              /* input expands to fill space */
+  flex: 1;           
   min-width: 0;
   width: 100%;
-  padding: 5px;
+  padding: 6px;
   border: 0px solid #d81eb0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   font-size: 0.9rem;
+} */
+
+
+
+
+#usernameWrapper {
+  display: flex;
+  gap: 0;          /* prefix is flush with input */
+  margin-right: auto;    
+  padding-left: 0;  /* remove padding */
+  flex: 1; 
+  min-width: 0;
+  border-radius: 8px;
+  overflow: hidden;  /* clip edges nicely */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+
+.input-prefix {
+  background: #eee;          /* slightly grey */
+  padding: 6px 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: flex;
+  align-items: baseline;       /* vertical center */
+  color: #333;
+}
+
+#usernameInput {
+  background: #eee; 
+  flex: 1;                    /* input takes remaining space */
+  border: none;               /* remove old border */
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border-radius: 0;           /* already rounded on wrapper */
+}
+
+
+
+
+
+
+
+
+
 
 #buttonsWrapper {
   display: flex;
@@ -502,12 +545,41 @@ body.sheet-open {
 
 #reRegisterBtn,
 #loginBtn {
-  padding: 6px 12px;
+  padding: 6px 15px;
   background: rgb(17, 156, 168);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-size: 0.9rem;
   white-space: nowrap;
 }
+
+/* END OF Login Container */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -526,6 +598,7 @@ body.sheet-open {
   /* margin-left: auto;          */
   padding: 6px 12px;
   font-size: 0.9rem;
+  width: 42%;
   border: none;
   border-radius: 8px;
   background: rgb(249, 189, 9);
@@ -553,7 +626,7 @@ body.sheet-open {
   display: flex;
   flex-direction: column;   /* stack label, textarea, button */
   gap: 0.5rem;              /* optional spacing */
-  margin-top: 0.3rem;
+  margin-top: 0.4rem;
 }
 
 

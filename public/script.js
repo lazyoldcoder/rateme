@@ -167,23 +167,55 @@ const usernameInput = document.getElementById('usernameInput');
 
 /* ======== 3 Sheet Positions ======== */
 // Convert mm to px (approx 1mm ≈ 3.78px)
+// const VISIBLE_MM = 95;
+// const VISIBLE_PX = VISIBLE_MM * 3.78; // ≈ 359px
+
+// // Get sheet height dynamically
+// const SHEET_HEIGHT_PX = sheet.offsetHeight || window.innerHeight;
+
+// // Positions
+// const CLOSED = -SHEET_HEIGHT_PX;                   // fully hidden off-screen
+// const HALF_OPEN = -SHEET_HEIGHT_PX + VISIBLE_PX;  // pops 95mm above bottom
+// const FULL_OPEN = 0;                               // fully open
+
+// let startY = 0,
+//     sheetStartBottom = CLOSED,
+//     isDragging = false;
+
+// // Start fully closed
+// sheet.style.bottom = `${CLOSED}px`;
+
+
+
+
+
+/* ======== 3 Sheet Positions ======== */
 const VISIBLE_MM = 95;
-const VISIBLE_PX = VISIBLE_MM * 3.78; // ≈ 359px
+const VISIBLE_PX = VISIBLE_MM * 3.78; // ~359px
 
-// Get sheet height dynamically
-const SHEET_HEIGHT_PX = sheet.offsetHeight || window.innerHeight;
+const FULL_OPEN = 0;           // fully open at top
+const HALF_OPEN = VISIBLE_PX;  // 95mm visible
+const SHEET_HEIGHT = sheet.offsetHeight || window.innerHeight;
+const CLOSED = -SHEET_HEIGHT;  // fully hidden off-screen
 
-// Positions
-const CLOSED = -SHEET_HEIGHT_PX;                   // fully hidden off-screen
-const HALF_OPEN = -SHEET_HEIGHT_PX + VISIBLE_PX;  // pops 95mm above bottom
-const FULL_OPEN = 0;                               // fully open
+let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
+sheet.style.bottom = `${CLOSED}px`; // start hidden
 
-let startY = 0,
-    sheetStartBottom = CLOSED,
-    isDragging = false;
 
-// Start fully closed
-sheet.style.bottom = `${CLOSED}px`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ======== 4 Drag Functions ======== */
 function startDrag(e) {

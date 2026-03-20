@@ -87,13 +87,80 @@ export default {
         return new Response(JSON.stringify(allBusinesses), { headers: { "Content-Type": "application/json" } });
       }
 
-      if (request.method === "POST") { // 4.3 - add/update business
+      // if (request.method === "POST") { // 4.3 - add/update business
+      //   const business = await request.json();
+      //   if (!business.email) return new Response(JSON.stringify({ error: "Email required" }), { status: 400 });
+      //   const key = business.id;
+      //   await env.BUSINESSES_KV.put(key, JSON.stringify(business));
+      //   return new Response(JSON.stringify(business), { headers: { "Content-Type": "application/json" } });
+      // }
+
+
+      // 4.3 - add/update business
+
+
+
+      // if (request.method === "POST") { 
+      //   const business = await request.json();
+
+      //   // 1️⃣ Assign sequential ID
+      //   const keys = await env.BUSINESSES_KV.list();
+      //   let nextId = 1;
+      //   if (keys.keys.length) {
+      //       const lastKey = keys.keys[keys.keys.length - 1].name;
+      //       const lastBiz = await env.BUSINESSES_KV.get(lastKey, { type: "json" });
+      //       nextId = (lastBiz?.id || 0) + 1;
+      //   }
+      //   business.id = nextId;
+
+      //   // 2️⃣ Optional: default email
+      //   if (!business.email) business.email = "";
+
+      //   // 3️⃣ Save to KV
+      //   await env.BUSINESSES_KV.put(business.id.toString(), JSON.stringify(business));
+
+      //   // 4️⃣ Return the new business
+      //   return new Response(JSON.stringify(business), { headers: { "Content-Type": "application/json" } });
+      // }
+      
+
+
+      if (request.method === "POST") { // 4.3 - add business
         const business = await request.json();
-        if (!business.email) return new Response(JSON.stringify({ error: "Email required" }), { status: 400 });
-        const key = business.id;
-        await env.BUSINESSES_KV.put(key, JSON.stringify(business));
-        return new Response(JSON.stringify(business), { headers: { "Content-Type": "application/json" } });
+
+        if (!business.name) {
+          return new Response(JSON.stringify({ error: "Business name required" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+
+        // get all existing businesses to determine next ID
+        const keys = await env.BUSINESSES_KV.list();
+
+        let nextId = 1;
+
+        if (keys.keys.length > 0) {
+          const ids = keys.keys.map(k => parseInt(k.name)).filter(n => !isNaN(n));
+          nextId = Math.max(...ids) + 1;
+        }
+
+        business.id = nextId;
+        business.created = new Date().toISOString();
+
+        await env.BUSINESSES_KV.put(String(nextId), JSON.stringify(business));
+
+        return new Response(JSON.stringify(business), {
+          headers: { "Content-Type": "application/json" }
+        });
       }
+      
+      
+      // 4.3 - END of add/update business
+
+
+
+
     }
 
     // 2.4 - Static assets fallback

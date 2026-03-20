@@ -437,11 +437,33 @@ saveNewBtn.addEventListener('click', async () => {
   const name = document.getElementById('newBusinessName').value.trim();
   const lat = parseFloat(document.getElementById('newBusinessLat')?.value) || null;
   const lng = parseFloat(document.getElementById('newBusinessLng')?.value) || null;
+  const email = document.getElementById('newBusinessEmail')?.value.trim() || "";
+  const location = document.getElementById('newBusinessLocation')?.value.trim() || "";
 
+  
   if (!name) return alert("Please enter a business name");
 
+  // DUPLICATE CHECKS
+// check duplicate name
+if (businesses.some(b => b.name?.toLowerCase() === name.toLowerCase())) {
+  return alert("A business with this name already exists");
+}
+
+// check duplicate email
+if (email && businesses.some(b => b.email?.toLowerCase() === email.toLowerCase())) {
+  return alert("A business with this email already exists");
+}
+
+
+
   // Build payload
-  const payload = { name, lat, lng };
+  const payload = {
+    name,
+    email,
+    location,
+    lat,
+    lng
+  };
 
   try {
     const res = await fetch('/api/businesses', {

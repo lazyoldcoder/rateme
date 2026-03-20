@@ -63,18 +63,129 @@ const usernameInput = document.getElementById('usernameInput');
 
 
 
-/* ======== 3Sheet Positions ======== */
-const FULL_OPEN = 0; // fully open
-const SHEET_HEIGHT = sheet.offsetHeight || window.innerHeight; 
-const HALF_OPEN = -(SHEET_HEIGHT - 95); // 95px visible
-const CLOSED = -SHEET_HEIGHT;           // fully hidden
 
-let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
+
+
+
+
+
+
+
+
+
+// /* ======== 3Sheet Positions ======== */
+// const FULL_OPEN = 0; // fully open
+// const SHEET_HEIGHT = sheet.offsetHeight || window.innerHeight; 
+// const HALF_OPEN = -(SHEET_HEIGHT - 95); // 95px visible
+// const CLOSED = -SHEET_HEIGHT;           // fully hidden
+
+// let startY = 0, sheetStartBottom = CLOSED, isDragging = false;
+// sheet.style.bottom = `${CLOSED}px`;
+
+// /* ======== 4 Sheet Drag Functions ======== */
+// function startDrag(e) {
+//   isDragging = true;
+//   startY = e.touches ? e.touches[0].clientY : e.clientY;
+//   sheetStartBottom = parseFloat(window.getComputedStyle(sheet).bottom);
+//   sheet.style.transition = 'none';
+// }
+
+// function dragMove(e) {
+//   if (!isDragging) return;
+//   const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+//   let diff = startY - currentY;
+//   let newBottom = sheetStartBottom + diff;
+//   newBottom = Math.min(FULL_OPEN, Math.max(CLOSED, newBottom));
+//   sheet.style.bottom = `${newBottom}px`;
+//   if (Math.abs(diff) > 5) e.preventDefault();
+// }
+
+// // function endDrag() {
+// //   if (!isDragging) return;
+// //   isDragging = false;
+// //   sheet.style.transition = 'bottom 0.3s ease';
+// //   const current = parseFloat(sheet.style.bottom);
+// //   const snapThreshold = window.innerHeight / 4;
+// //   if (current > HALF_OPEN + snapThreshold) openSheet(FULL_OPEN);
+// //   else if (current > CLOSED + snapThreshold) openSheet(HALF_OPEN);
+// //   else closeSheet();
+// // }
+
+// function endDrag() {
+//   if (!isDragging) return;
+//   isDragging = false;
+//   sheet.style.transition = 'bottom 0.3s ease';
+//   const current = parseFloat(sheet.style.bottom);
+
+//   // Find the closest snap point
+//   const positions = [FULL_OPEN, HALF_OPEN, CLOSED];
+//   let closest = positions[0];
+//   let minDist = Math.abs(current - positions[0]);
+//   for (let i = 1; i < positions.length; i++) {
+//     const dist = Math.abs(current - positions[i]);
+//     if (dist < minDist) {
+//       closest = positions[i];
+//       minDist = dist;
+//     }
+//   }
+
+//   // Snap to the closest
+//   openSheet(closest);
+// }
+
+// function openSheet(position) {
+//   sheet.style.bottom = `${position}px`;
+//   document.body.classList.add('sheet-open');
+// }
+
+// function closeSheet() {
+//   sheet.style.bottom = `${CLOSED}px`;
+//   document.body.classList.remove('sheet-open');
+// }
+
+
+// /* ======== 5 Event Listeners for Sheet ======== */
+// handle.addEventListener('mousedown', startDrag);
+// handle.addEventListener('touchstart', startDrag, { passive: false });
+// document.addEventListener('mousemove', dragMove);
+// document.addEventListener('touchmove', dragMove, { passive: false });
+// document.addEventListener('mouseup', endDrag);
+// document.addEventListener('touchend', endDrag);
+// selector.addEventListener('click', () => openSheet(HALF_OPEN));
+// sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
+// sheet.addEventListener('touchmove', e => { if (!isDragging) return; e.stopPropagation(); }, { passive: false });
+
+
+
+
+
+
+
+
+
+
+
+/* ======== 3 Sheet Positions ======== */
+// Convert mm to px (approx 1mm ≈ 3.78px)
+const VISIBLE_MM = 95;
+const VISIBLE_PX = VISIBLE_MM * 3.78; // ≈ 359px
+
+// Get sheet height dynamically
+const SHEET_HEIGHT_PX = sheet.offsetHeight || window.innerHeight;
+
+// Positions
+const CLOSED = -SHEET_HEIGHT_PX;                   // fully hidden off-screen
+const HALF_OPEN = -SHEET_HEIGHT_PX + VISIBLE_PX;  // pops 95mm above bottom
+const FULL_OPEN = 0;                               // fully open
+
+let startY = 0,
+    sheetStartBottom = CLOSED,
+    isDragging = false;
+
+// Start fully closed
 sheet.style.bottom = `${CLOSED}px`;
 
-
-
-/* ======== 4 Sheet Drag Functions ======== */
+/* ======== 4 Drag Functions ======== */
 function startDrag(e) {
   isDragging = true;
   startY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -87,67 +198,69 @@ function dragMove(e) {
   const currentY = e.touches ? e.touches[0].clientY : e.clientY;
   let diff = startY - currentY;
   let newBottom = sheetStartBottom + diff;
+
+  // Constrain within CLOSED to FULL_OPEN
   newBottom = Math.min(FULL_OPEN, Math.max(CLOSED, newBottom));
+
   sheet.style.bottom = `${newBottom}px`;
   if (Math.abs(diff) > 5) e.preventDefault();
 }
-
-// function endDrag() {
-//   if (!isDragging) return;
-//   isDragging = false;
-//   sheet.style.transition = 'bottom 0.3s ease';
-//   const current = parseFloat(sheet.style.bottom);
-//   const snapThreshold = window.innerHeight / 4;
-//   if (current > HALF_OPEN + snapThreshold) openSheet(FULL_OPEN);
-//   else if (current > CLOSED + snapThreshold) openSheet(HALF_OPEN);
-//   else closeSheet();
-// }
 
 function endDrag() {
   if (!isDragging) return;
   isDragging = false;
   sheet.style.transition = 'bottom 0.3s ease';
+
   const current = parseFloat(sheet.style.bottom);
+  const snapPoints = [CLOSED, HALF_OPEN, FULL_OPEN];
 
-  // Find the closest snap point
-  const positions = [FULL_OPEN, HALF_OPEN, CLOSED];
-  let closest = positions[0];
-  let minDist = Math.abs(current - positions[0]);
-  for (let i = 1; i < positions.length; i++) {
-    const dist = Math.abs(current - positions[i]);
-    if (dist < minDist) {
-      closest = positions[i];
-      minDist = dist;
-    }
-  }
+  // Find closest snap point
+  let closest = snapPoints.reduce((prev, curr) => {
+    return Math.abs(curr - current) < Math.abs(prev - current) ? curr : prev;
+  });
 
-  // Snap to the closest
-  openSheet(closest);
+  sheet.style.bottom = `${closest}px`;
 }
 
-
-
-
-function openSheet(position) {
+/* ======== 5 Open & Close Functions ======== */
+function openSheet(position = HALF_OPEN) {
+  sheet.style.transition = 'bottom 0.3s ease';
   sheet.style.bottom = `${position}px`;
   document.body.classList.add('sheet-open');
 }
 
 function closeSheet() {
+  sheet.style.transition = 'bottom 0.3s ease';
   sheet.style.bottom = `${CLOSED}px`;
   document.body.classList.remove('sheet-open');
 }
 
-/* ======== 5 Event Listeners for Sheet ======== */
+/* ======== 6 Event Listeners ======== */
 handle.addEventListener('mousedown', startDrag);
 handle.addEventListener('touchstart', startDrag, { passive: false });
+
 document.addEventListener('mousemove', dragMove);
 document.addEventListener('touchmove', dragMove, { passive: false });
+
 document.addEventListener('mouseup', endDrag);
 document.addEventListener('touchend', endDrag);
+
 selector.addEventListener('click', () => openSheet(HALF_OPEN));
+
+// Close sheet if background clicked
 sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
 sheet.addEventListener('touchmove', e => { if (!isDragging) return; e.stopPropagation(); }, { passive: false });
+
+
+
+
+
+
+
+
+
+
+
 
 /* ======== 6 Load Businesses ======== */
 async function loadBusinesses() {
@@ -169,6 +282,19 @@ async function loadBusinesses() {
 }
 
 loadBusinesses();
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ======== 7 Render Business Cards ======== */
 const cardsWrapper = document.createElement('div');
@@ -218,20 +344,50 @@ document.getElementById("businessSearch").addEventListener("input", () => {
   renderBusinessList(filtered);
 });
 
-/* ======== 10 Select Business ======== */
+// /* ======== 10 Select Business ======== */
+// function selectBusiness(id) {
+//   const biz = businesses.find(b => b.id === id);
+//   if (!biz) return;
+//   currentBusiness = biz.id;
+//   localStorage.setItem('lastBusiness', currentBusiness);
+//   selectedBizName.textContent = `☕ ${biz.name}`;
+//   selectedBizLocation.textContent = biz.location;
+//   document.querySelectorAll('.business-card').forEach(card => {
+//     card.classList.toggle('selected', card.dataset.id == id);
+//   });
+//   fetchRatings();
+//   closeSheet();
+// }
+
+
+
+
+
+/* ======== 10 Close on business selection ======== */
 function selectBusiness(id) {
   const biz = businesses.find(b => b.id === id);
   if (!biz) return;
+
   currentBusiness = biz.id;
   localStorage.setItem('lastBusiness', currentBusiness);
   selectedBizName.textContent = `☕ ${biz.name}`;
   selectedBizLocation.textContent = biz.location;
+
   document.querySelectorAll('.business-card').forEach(card => {
     card.classList.toggle('selected', card.dataset.id == id);
   });
+
   fetchRatings();
-  closeSheet();
+  closeSheet(); // closes immediately on selection
 }
+
+
+
+
+
+
+
+
 
 /* ======== 11 Emoji Rating ======== */
 emojiBtns.forEach(btn => btn.addEventListener('click', e => {

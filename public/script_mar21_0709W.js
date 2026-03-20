@@ -22,10 +22,6 @@ const selectedBizLocation = document.querySelector('.biz-location');
 const gpsDisplay = document.getElementById("gpsDisplay");
 const usernameInput = document.getElementById('usernameInput');
 
-const searchBox = document.getElementById('businessSearch');
-const nearMeBtn = document.getElementById('nearMeBtn');
-
-
 /* ======== 3 Load Businesses ======== */
 async function loadBusinesses() {
   try {
@@ -70,6 +66,54 @@ function renderBusinessCards() {
   });
 }
 
+// /* ======== 5 Render Business List ======== */
+// function renderBusinessList(list = currentList) {
+//   businessList.innerHTML = "";
+//   if (!list.length) {
+//     businessList.innerHTML = '<div class="business-row"><em>No businesses found</em></div>';
+//     return;
+//   }
+//   list.forEach(b => {
+//     const row = document.createElement('div');
+//     row.className = 'business-row';
+//     row.innerHTML = `<div class="name">☕ ${b.name}</div><div class="location">${b.location}</div>`;
+//     row.addEventListener('click', () => selectBusiness(String(b.id)));
+//     businessList.appendChild(row);
+//   });
+// } dev
+
+
+
+
+// /* ======== 5 Render Business List (with distance) ======== */
+// function renderBusinessList(list = currentList) {
+//   businessList.innerHTML = "";
+//   if (!list.length) {
+//     businessList.innerHTML = '<div class="business-row"><em>No businesses found</em></div>';
+//     return;
+//   }
+
+//   list.forEach(b => {
+//     const row = document.createElement('div');
+//     row.className = 'business-row';
+
+//     // Compute distance if we have location
+//     let distanceText = '';
+//     if (userLat != null && userLng != null && b.lat != null && b.lng != null) {
+//       const meters = getDistance(userLat, userLng, b.lat, b.lng);
+//       distanceText = ` • ${(meters/1000).toFixed(2)} km`;
+//     }
+
+//     row.innerHTML = `
+//       <div class="name">☕ ${b.name}</div>
+//       <div class="location">${b.location}${distanceText}</div>
+//     `;
+
+//     row.addEventListener('click', () => selectBusiness(String(b.id)));
+//     businessList.appendChild(row);
+//   });
+// }
+
 
 /* ======== 5 Render Business List (with distance) ======== */
 function renderBusinessList(list = currentList) {
@@ -102,6 +146,22 @@ function renderBusinessList(list = currentList) {
 
 
 
+/* ======== 6 Open / Close Sheet ======== */
+// function openSheet() {
+//   renderBusinessList(currentList); // preserve current sorting
+//   document.body.classList.add('sheet-open');
+// }
+
+// function closeSheet() {
+//   document.body.classList.remove('sheet-open');
+// }
+
+// selector.addEventListener('click', openSheet);
+// sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
+
+
+
+
 /* ======== 6 Open / Close Sheet (with 22mm offset) ======== */
 
 function openSheet() {
@@ -121,12 +181,16 @@ sheet.addEventListener('click', e => {
 
 
 
+// const sheet = document.getElementById('businessSheet');
+const searchBox = document.getElementById('businessSearch');
+const nearMeBtn = document.getElementById('nearMeBtn');
+
 sheet.addEventListener('click', (e) => {
   // Get the Y position of the search box
   const searchTop = searchBox.getBoundingClientRect().top;
 
   // Only close if click is **above the search box** and NOT the Near Me button
-  if (e.target !== searchBox && e.target !== nearMeBtn && e.target !== addnewBtn && e.clientY < searchTop) {
+  if (e.target !== searchBox && e.target !== nearMeBtn && e.target !== addNewBtn && e.clientY < searchTop) {
     closeSheet();
   }
 });
@@ -229,6 +293,36 @@ form.addEventListener('submit', async e => {
 
 
 
+//start target code for module geo.js
+
+// /* ======== 11 Near Me Location ======== */
+// function getCurrentLocationAndSort() {
+//   if (!navigator.geolocation) return alert("Geolocation not supported");
+//   navigator.geolocation.getCurrentPosition(pos => {
+//     userLat = pos.coords.latitude;
+//     userLng = pos.coords.longitude;
+//     gpsDisplay.textContent = `Current location: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
+
+//     currentList = [...businesses].sort((a,b) => getDistance(userLat,userLng,a.lat,a.lng)-getDistance(userLat,userLng,b.lat,b.lng));
+//     renderBusinessList(currentList);
+//   }, err => alert("Failed to get location: " + err.message), { enableHighAccuracy:true });
+// }
+
+// document.getElementById("nearMeBtn").addEventListener("click", getCurrentLocationAndSort);
+
+// /* ======== 12 Haversine Distance ======== */
+// function getDistance(lat1, lon1, lat2, lon2) {
+//   const R = 6371e3; // meters
+//   const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
+//   const Δφ = (lat2-lat1)*Math.PI/180, Δλ = (lon2-lon1)*Math.PI/180;
+//   const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+//   return R * c;
+// }
+
+
+//end target code for module geo.js
+
 /* ======== 11 Near Me Location & Auto-Sort ======== */
 function getCurrentLocationAndSort() {
   if (!navigator.geolocation) return alert("Geolocation not supported");
@@ -318,111 +412,4 @@ document.getElementById('reRegisterBtn').addEventListener('click', async () => {
 
   await loadBusinesses(); // refresh cards & list
   fetchRatings();
-});
-
-
-
-
-// /* ======== 15 Open / Close Add New Business Sheet ======== */
-
-// // 1. References  (move to Section 2 DOM references later)
-// const addnewBtn = document.getElementById('addnewBtn');
-// const addnewSheet = document.getElementById('addnewBusinessSheet');
-// const cancelAddnewBtn = document.getElementById('canceladdnewBtn');
-
-
-
-// // 2. Open sheet on Add New button click
-// addnewBtn.addEventListener('click', () => {
-//   document.body.classList.add('sheet-open-addnew');  // triggers transform: translateY(0)
-//   console.log("Add New sheet opened");               // <-- debug log
-// });
-
-// // 3. Close sheet on Cancel button click
-// cancelAddnewBtn.addEventListener('click', () => {
-//   document.body.classList.remove('sheet-open-addnew');
-//   console.log("Add New sheet closed");               // <-- debug log
-// });
-
-
-// /* ======== 15 Open / Close Add New Business Sheet ======== */
-
-// // 1. References (move to Section 2 DOM references later)
-// const addnewBtn = document.getElementById('addnewBtn');
-// const addnewSheet = document.getElementById('addnewBusinessSheet');
-// const cancelAddnewBtn = document.getElementById('canceladdnewBtn');
-// const newBizNameInput = document.getElementById('newBusinessName'); // first input
-
-// // 2. Open Add New sheet
-// addnewBtn.addEventListener('click', () => {
-//   // Optional: keep Select Business sheet visible underneath
-//   document.body.classList.add('sheet-open-addnew');   // triggers transform: translateY(0)
-  
-//   // Focus first input for convenience
-//   newBizNameInput.focus();
-  
-//   console.log("Add New sheet opened");
-// });
-
-// // 3. Close Add New sheet on Cancel button click
-// cancelAddnewBtn.addEventListener('click', () => {
-//   document.body.classList.remove('sheet-open-addnew');
-//   console.log("Add New sheet closed");
-// });
-
-// // 4. Close Add New sheet when clicking outside first input
-// addnewSheet.addEventListener('click', (e) => {
-//   const inputTop = newBizNameInput.getBoundingClientRect().top;
-
-//   // Only close if click is above first input and NOT the Cancel button or Add New button itself
-//   if (
-//     e.target !== newBizNameInput &&
-//     e.target !== cancelAddnewBtn &&
-//     e.target !== addnewBtn &&
-//     e.clientY < inputTop
-//   ) {
-//     document.body.classList.remove('sheet-open-addnew');
-//     console.log("Add New sheet closed via click outside");
-//   }
-// });
-
-
-/* ======== 15 Open / Close Add New Business Sheet ======== */
-
-// 1. References
-const addnewBtn = document.getElementById('addnewBtn');
-const addnewSheet = document.getElementById('addnewBusinessSheet');
-const cancelAddnewBtn = document.getElementById('canceladdnewBtn');
-const newBusinessNameInput = document.getElementById('newBusinessName'); // first input
-
-// 2. Open Add New sheet
-addnewBtn.addEventListener('click', () => {
-  document.body.classList.add('sheet-open-addnew');   // triggers transform: translateY(0)
-  
-  // Focus first input for convenience
-  newBusinessNameInput.focus();
-  
-  console.log("Add New sheet opened");
-});
-
-// 3. Close Add New sheet on Cancel button click
-cancelAddnewBtn.addEventListener('click', () => {
-  document.body.classList.remove('sheet-open-addnew');
-  console.log("Add New sheet closed");
-});
-
-// 4. Close Add New sheet when clicking outside first input
-addnewSheet.addEventListener('click', (e) => {
-  const inputTop = newBusinessNameInput.getBoundingClientRect().top;
-
-  // Only close if click is above first input and NOT the Cancel button or Add New button itself
-  if (
-    e.target !== newBusinessNameInput &&
-    e.target !== cancelAddnewBtn &&
-    e.target !== addnewBtn &&
-    e.clientY < inputTop
-  ) {
-    document.body.classList.remove('sheet-open-addnew');
-    console.log("Add New sheet closed via click outside");
-  }
 });

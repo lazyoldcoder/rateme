@@ -375,7 +375,7 @@ body.sheet-open {
 }
 
 
-#addnewBtn, #nearMeBtn, #addnewBtn, #canceladdnewBtn {
+#addNewBtn {
   flex-shrink: 1;                /* allow shrinking on small screens */
   max-width: 45%;                /* never exceed 45% of row */
   width: auto;                   /* shrink to fit content */
@@ -387,39 +387,33 @@ body.sheet-open {
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-/* 
+
 #nearMeBtn {
-  flex-shrink: 1;                
-  max-width: 45%;                
-  width: auto;                   
-  white-space: nowrap;           
-  padding: 0.4rem 1.0rem;        
+  flex-shrink: 1;                /* allow shrinking on small screens */
+  max-width: 45%;                /* never exceed 45% of row */
+  width: auto;                   /* shrink to fit content */
+  white-space: nowrap;           /* prevent wrapping */
+  padding: 0.4rem 1.0rem;        /* smaller padding to reduce height */
   font-size: 0.9rem;
   background: #eee;
   color: #333;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+
+
+
+
+/* 
+
+
+
+#nearMeBtn {
+  background: #eee;
+  color: #333;
+  margin-bottom: 0.7rem;
 } */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 .business-row {
@@ -442,15 +436,73 @@ body.sheet-open {
 }
 
 
+
+
 #businessList {
   overflow-y: auto;
   flex: 1;
 }
 
 
+/* 
+#businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;       
+
+  min-height: 50vh;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  transition: bottom 0.3s ease;
+  z-index: 1000;
+  touch-action: none;  
+  overflow-y: auto;    
+} */
+
+/* 
+#businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 90vh;              
+  transform: translateY(100%);  
+
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+
+  display: flex;
+  flex-direction: column;
+
+  transition: transform 0.3s ease;
+  z-index: 1000;
+
+  overflow-y: auto;
+}
+
+
+
+
 body.sheet-open #businessSheet {
   transform: translateY(0);
 }
+
+
+
+
+
+
+
 
 
 
@@ -479,63 +531,71 @@ body.sheet-open {
   right: -12px;
   pointer-events: none;
 }
+ */
 
 
 
-/* POP UP SHEETS */
+/* Business Pop Up */
+/* 
 
-:root {
-  --sheet-top-limit: 182px;   
-}
-
-#businessSheet, #addnewBusinessSheet  {
+#businessSheet {
   position: fixed;
   left: 0;
   right: 0;
-  top: var(--sheet-top-limit);   
   bottom: 0;
-
+  height: 80vh;            
+  transform: translateY(100%);
+  background: #fff;
   border-radius: 16px 16px 0 0;
   padding: 1rem;
-  padding-top: 0.1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
-
   transition: transform 0.3s ease;
   z-index: 1000;
   overflow-y: auto;
-  transform: translateY(100%);
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+}
+
+body.sheet-open #businessSheet {
+  transform: translateY(0);
+} */
+
+
+
+
+:root {
+  --sheet-top-limit: 182px; /* <-- CHANGE THIS to whatever top offset you want */
 }
 
 #businessSheet {
-  background: #ffffff;
+  position: fixed;
+  left: 0;
+  right: 0;
+
+  top: var(--sheet-top-limit);   
+  bottom: 0;
+
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  padding-top: 0.1rem;
+  
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
   z-index: 1000;
+  overflow-y: auto;
+
+  transform: translateY(100%);
 }
 
-#addnewBusinessSheet {
-  background: #d8f4f4;
-  z-index: 1100;
-}
-
-body.sheet-open #businessSheet,
-body.sheet-open-addnew #addnewBusinessSheet  {
+body.sheet-open #businessSheet {
   transform: translateY(0);   
 }
 
 
-#addnewBusinessSheet input[required] {
-  border: 1px solid red;
-  background: #fff8f8;
-}
-
-#addnewBusinessSheet input {
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  font-size: .8rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
 
 
 .sheet-handle {
@@ -593,6 +653,34 @@ body.sheet-open-addnew #addnewBusinessSheet  {
 }
 
 
+/* 
+
+#usernameWrapper {
+  display: flex;
+  gap: 4px;
+  margin-right: auto;    
+  padding-left: 2px;
+  flex: 1; 
+  min-width: 0;
+}
+
+#usernameWrapper label {
+  font-size: 0.7rem;        
+  color: #333;          
+  font-weight: 600;       
+  line-height: 1.2;       
+}
+
+#usernameInput {
+  flex: 1;           
+  min-width: 0;
+  width: 100%;
+  padding: 6px;
+  border: 0px solid #d81eb0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+} */
 
 
 
@@ -681,6 +769,21 @@ body.sheet-open-addnew #addnewBusinessSheet  {
 
 
 
+
+
+
+
+
+/* Submit Button */
+
+/* #submitBtn {
+  padding: 6px 2px 6px 2px;
+  align-self: flex-end;   
+  margin-left: auto;
+  font-size: 0.9rem;
+  white-space: nowrap;
+} */
+
 /* Push submit button to right */
 #submitBtn {
   /* margin-left: auto;          */
@@ -735,14 +838,4 @@ body.sheet-open-addnew #addnewBusinessSheet  {
 .comment-wrapper textarea {
   width: 100%;
   box-sizing: border-box;
-}
-
-
-
-
-  
-#gpsDisplay {
-margin-bottom: 0.5rem;
-font-size: 0.85rem;
-color: #333;
 }

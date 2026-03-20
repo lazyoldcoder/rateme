@@ -426,3 +426,80 @@ addnewSheet.addEventListener('click', (e) => {
     console.log("Add New sheet closed via click outside");
   }
 });
+
+
+
+
+/* ===== 16 Add New Business Save ===== */
+const saveNewBtn = document.getElementById('savenewbusinessBtn');
+
+saveNewBtn.addEventListener('click', async () => {
+  const name = document.getElementById('newBusinessName').value.trim();
+  const lat = parseFloat(document.getElementById('newBusinessLat')?.value) || null;
+  const lng = parseFloat(document.getElementById('newBusinessLng')?.value) || null;
+
+  if (!name) return alert("Please enter a business name");
+
+  // Build payload
+  const payload = { name, lat, lng };
+
+  try {
+    const res = await fetch('/api/businesses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error(`Worker error: ${res.statusText}`);
+
+    const newBiz = await res.json(); // <- This should include the assigned id
+    console.log("New business added:", newBiz);
+
+    // Optional: Positive feedback on sheet
+    // alert(`Business added: ${newBiz.name} (ID: ${newBiz.id})`);
+    // Append styled new business card inside the Add New sheet
+    appendNewBusinessCard(newBiz, currentUser.username);
+
+    // 1. Update cards & list
+    businesses.push(newBiz);
+    currentList.push(newBiz);
+    renderBusinessCards();
+    renderBusinessList(currentList);
+
+    // 2. Optionally, select the new business automatically
+    selectBusiness(newBiz.id);
+
+    // 3. Close Add New sheet
+    document.body.classList.remove('sheet-open-addnew');
+
+    // 4. Clear inputs for next entry
+    document.getElementById('newBusinessName').value = '';
+    if(document.getElementById('newBusinessLat')) document.getElementById('newBusinessLat').value = '';
+    if(document.getElementById('newBusinessLng')) document.getElementById('newBusinessLng').value = '';
+
+  } catch (err) {
+    console.error("Failed to add new business:", err);
+    alert("Failed to add new business. See console for details.");
+  }
+});
+
+function appendNewBusinessCard(newBiz, username) {
+  const container = document.getElementById('addnewBusinessSheet');
+
+  const card = document.createElement('div');
+  card.className = 'new-business-card';
+
+  card.innerHTML = `
+    <div class="nbc-header"><strong>${username}</strong> added a new business:</div>
+    <div class="nbc-name">ID: ${newBiz.id}, ${newBiz.name}</div>
+    <div class="nbc-location">Location: ${newBiz.location || '-'}</div>
+    <div class="nbc-email">Email: ${newBiz.email || '-'}</div>
+    <div class="nbc-latlng">Lat / Lng: ${newBiz.lat ?? '-'}, ${newBiz.lng ?? '-'}</div>
+    <div class="nbc-timestamp">${new Date().toLocaleString()}</div>
+  `;
+
+  container.appendChild(card);
+
+  // Optional: scroll to bottom so user sees the new card
+  container.scrollTop = container.scrollHeight;
+}

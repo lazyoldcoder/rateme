@@ -61,6 +61,7 @@
   .cards-wrapper {
     display: flex;
     gap: 1rem;
+    margin-top: .1rem;
   }
   
   /* Mar6 redundant horiz scroll  */
@@ -140,7 +141,7 @@
     padding: 0.7rem 1.2rem;
     border: none;
     border-radius: 8px;
-    background: #007bff;
+    background: #007bff; 
     color: white;
     font-size: 1rem;
     /* width: 100%; removed to allow buttons to shrink*/
@@ -375,33 +376,66 @@ body.sheet-open {
 }
 
 
-#addnewBtn, #nearMeBtn, #addnewBtn, #canceladdnewBtn {
+#addnewBtn, #nearMeBtn, #savenewbusinessBtn, #canceladdnewBtn {
   flex-shrink: 1;                /* allow shrinking on small screens */
-  max-width: 45%;                /* never exceed 45% of row */
   width: auto;                   /* shrink to fit content */
   white-space: nowrap;           /* prevent wrapping */
-  padding: 0.4rem 1.0rem;        /* smaller padding to reduce height */
+  padding: 0.4rem 0.5rem;        /* smaller padding to reduce height */
   font-size: 0.9rem;
   background: #eee;
   color: #333;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-/* 
-#nearMeBtn {
-  flex-shrink: 1;                
-  max-width: 45%;                
-  width: auto;                   
-  white-space: nowrap;           
-  padding: 0.4rem 1.0rem;        
+
+
+
+.addnewgpsheader > #fillGPSBtn {
+  flex-shrink: 0;
+  width: auto;
+  white-space: nowrap;
+  padding: 0.4rem 0.5rem;
   font-size: 0.9rem;
   background: #eee;
   color: #333;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-} */
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+
+  position: relative;
+  z-index: 10;
+}
 
 
 
+
+.addnewgpsheader > #fillGPSBtn:hover {
+  background: #37993f !important;
+  color: #fff !important;
+}
+
+
+
+
+.addnewgpsheader {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;             
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;           
+}
+
+.addnewgpsheader span {
+  font-size: 0.85rem;
+  color: #555;
+}
 
 
 
@@ -746,3 +780,50 @@ margin-bottom: 0.5rem;
 font-size: 0.85rem;
 color: #333;
 }
+
+
+
+
+
+
+
+
+
+/* New Business Card at bottom of Add New sheet  */
+.new-business-card {
+  background: #fff;
+  border-radius: 12px;
+  border-bottom: 1px solid #ddd;
+  padding: 0.6rem 1rem;
+  margin-top: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  font-family: "Helvetica Neue", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.new-business-card .nbc-header {
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.new-business-card .nbc-name {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.new-business-card .nbc-location,
+.new-business-card .nbc-email,
+.new-business-card .nbc-latlng {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.new-business-card .nbc-timestamp {
+  font-size: 0.5rem;
+  color: #999;
+}
+
+/* END of New Business Card at bottom of Add New sheet */

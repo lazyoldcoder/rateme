@@ -167,3 +167,32 @@ export default {
     try { return await fetch(request); } catch (err) { return new Response("Not found", { status: 404 }); }
   }
 };
+
+
+
+
+
+
+
+// Open your local dev environment with npx wrangler dev (http://localhost:8787).
+// Add a POST /api/businesses/reindex endpoint in your Worker, e.g.:
+
+if (url.pathname === "/api/businesses/reindex" && request.method === "POST") {
+  const keys = await env.BUSINESSES_KV.list();
+  let allBusinesses = [];
+
+  for (let i = 0; i < keys.keys.length; i++) {
+    const k = keys.keys[i];
+    const biz = await env.BUSINESSES_KV.get(k.name, { type: "json" });
+    if (!biz) continue;
+
+    // rewrite id as index
+    biz.id = i;
+    await env.BUSINESSES_KV.put(String(i), JSON.stringify(biz));
+    allBusinesses.push(biz);
+  }
+
+  return new Response(JSON.stringify(allBusinesses), {
+    headers: { "Content-Type": "application/json" }
+  });
+}

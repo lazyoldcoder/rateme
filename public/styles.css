@@ -356,11 +356,50 @@ body.sheet-open {
 
 
 
+
+
+
+#sheetHeaderRow {
+  display: flex;
+  align-items: center;           /* vertically center h2 and button */
+  justify-content: space-between;/* h2 left, button right */
+  width: 100%;
+  gap: 0.5rem;                   /* optional spacing */
+  margin-bottom: 0.5rem;         /* tight spacing before search box */
+}
+
+#sheetHeaderRow h2 {
+  margin: 0;
+  font-size: 1rem;               /* smaller to save space */
+  flex: 1;                        /* take remaining space */
+}
+
+#nearMeBtn {
+  flex-shrink: 1;                /* allow shrinking on small screens */
+  max-width: 45%;                /* never exceed 45% of row */
+  width: auto;                   /* shrink to fit content */
+  white-space: nowrap;           /* prevent wrapping */
+  padding: 0.4rem 1.6rem;        /* smaller padding to reduce height */
+  font-size: 0.9rem;
+  background: #eee;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+
+
+
+
+/* 
+
+
+
 #nearMeBtn {
   background: #eee;
   color: #333;
   margin-bottom: 0.7rem;
-}
+} */
 
 
 .business-row {
@@ -483,14 +522,14 @@ body.sheet-open {
 
 
 /* Business Pop Up */
-
+/* 
 
 #businessSheet {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 90vh;             /* nearly full screen */
+  height: 80vh;            
   transform: translateY(100%);
   background: #fff;
   border-radius: 16px 16px 0 0;
@@ -505,7 +544,43 @@ body.sheet-open {
 
 body.sheet-open #businessSheet {
   transform: translateY(0);
+} */
+
+
+
+
+:root {
+  --sheet-top-limit: 182px; /* <-- CHANGE THIS to whatever top offset you want */
 }
+
+#businessSheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+
+  top: var(--sheet-top-limit);   
+  bottom: 0;
+
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  padding: 1rem;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+
+  transform: translateY(100%);
+}
+
+body.sheet-open #businessSheet {
+  transform: translateY(0);   
+}
+
+
+
 
 .sheet-handle {
   width: 40px;

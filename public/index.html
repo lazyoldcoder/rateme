@@ -123,29 +123,33 @@
 
 
 
-<!-- new mar 16 -->
+
+
+
 <!-- Business Bottom Sheet -->
 <div id="businessSheet">
 
   <div class="sheet-handle"></div>
-
-  <h2>Select Business</h2>
-
-  <input
-    type="text"
-    id="businessSearch"
-    placeholder="Search businesses..."
-  >
+  
 
 
 
+  <!-- Flex row for label + button -->
+  <div id="sheetHeaderRow">
+    <h2>Select Business</h2>
+    <button id="nearMeBtn">📍 Near Me</button>
+  </div>
 
-  <button id="nearMeBtn">📍 Near Me</button>
+
+  <!-- <h2>Select Business</h2> -->
+
+  <input type="text" id="businessSearch" placeholder="Search businesses...">
+  
+  <!-- <button id="nearMeBtn">📍 Near Me</button> -->
 
   <div id="gpsDisplay" style="margin-bottom: 0.5rem; font-size: 0.85rem; color: #333;">
     Current location: unknown
   </div>
-
 
   <div id="businessList"></div>
 

@@ -78,8 +78,25 @@ function renderBusinessList(list = currentList) {
 }
 
 /* ======== 6 Open / Close Sheet ======== */
+// function openSheet() {
+//   renderBusinessList(currentList); // preserve current sorting
+//   document.body.classList.add('sheet-open');
+// }
+
+// function closeSheet() {
+//   document.body.classList.remove('sheet-open');
+// }
+
+// selector.addEventListener('click', openSheet);
+// sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
+
+
+
+
+/* ======== 6 Open / Close Sheet (with 22mm offset) ======== */
+
 function openSheet() {
-  renderBusinessList(currentList); // preserve current sorting
+  renderBusinessList(currentList); // keep your current sorting
   document.body.classList.add('sheet-open');
 }
 
@@ -88,7 +105,28 @@ function closeSheet() {
 }
 
 selector.addEventListener('click', openSheet);
-sheet.addEventListener('click', e => { if (e.target === sheet) closeSheet(); });
+sheet.addEventListener('click', e => {
+  if (e.target === sheet) closeSheet();
+});
+
+
+
+
+// const sheet = document.getElementById('businessSheet');
+const searchBox = document.getElementById('businessSearch');
+const nearMeBtn = document.getElementById('nearMeBtn');
+
+sheet.addEventListener('click', (e) => {
+  // Get the Y position of the search box
+  const searchTop = searchBox.getBoundingClientRect().top;
+
+  // Only close if click is **above the search box** and NOT the Near Me button
+  if (e.target !== searchBox && e.target !== nearMeBtn && e.clientY < searchTop) {
+    closeSheet();
+  }
+});
+
+
 
 /* ======== 7 Select Business ======== */
 function selectBusiness(id, close = true) {

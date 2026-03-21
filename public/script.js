@@ -1,3 +1,4 @@
+
 /* ======== 1 Variables ======== */
 let businesses = [];
 let currentBusiness = null;
@@ -433,13 +434,14 @@ addnewSheet.addEventListener('click', (e) => {
 /* ===== 16 Add New Business Save ===== */
 const saveNewBtn = document.getElementById('savenewbusinessBtn');
 
-saveNewBtn.addEventListener('click', async () => {
+saveNewBtn.addEventListener('click', async (event) => {
+  event.preventDefault();
   const name = document.getElementById('newBusinessName').value.trim();
   const lat = parseFloat(document.getElementById('newBusinessLat')?.value) || null;
   const lng = parseFloat(document.getElementById('newBusinessLng')?.value) || null;
   const email = document.getElementById('newBusinessEmail')?.value.trim() || "";
   const location = document.getElementById('newBusinessLocation')?.value.trim() || "";
-
+  const img = document.getElementById('newBusinessImg')?.value.trim() || ""
   
   if (!name) return alert("Please enter a business name");
 
@@ -462,7 +464,8 @@ if (email && businesses.some(b => b.email?.toLowerCase() === email.toLowerCase()
     email,
     location,
     lat,
-    lng
+    lng,
+    img
   };
 
   try {
@@ -474,7 +477,16 @@ if (email && businesses.some(b => b.email?.toLowerCase() === email.toLowerCase()
 
     if (!res.ok) throw new Error(`Worker error: ${res.statusText}`);
 
-    const newBiz = await res.json(); // <- This should include the assigned id
+    // const newBiz = await res.json(); // <- This should include the assigned id
+    
+    
+    const resText = await res.text();       // 1️⃣ Read the raw response as text
+    console.log("POST /api/businesses response:", resText);  // 2️⃣ Print exactly what was returned
+    const newBiz = JSON.parse(resText);     // 3️⃣ Convert to JSON AFTER logging
+
+
+
+
     console.log("New business added:", newBiz);
 
     // Optional: Positive feedback on sheet
@@ -492,7 +504,11 @@ if (email && businesses.some(b => b.email?.toLowerCase() === email.toLowerCase()
     selectBusiness(newBiz.id);
 
     // 3. Close Add New sheet
-    document.body.classList.remove('sheet-open-addnew');
+    // document.body.classList.remove('sheet-open-addnew');
+
+    // Scroll new card into view
+    // card.scrollIntoView({ behavior: "smooth", block: "end" });
+
 
     // 4. Clear inputs for next entry
     document.getElementById('newBusinessName').value = '';
@@ -517,11 +533,21 @@ function appendNewBusinessCard(newBiz, username) {
     <div class="nbc-location">Location: ${newBiz.location || '-'}</div>
     <div class="nbc-email">Email: ${newBiz.email || '-'}</div>
     <div class="nbc-latlng">Lat / Lng: ${newBiz.lat ?? '-'}, ${newBiz.lng ?? '-'}</div>
+    ${newBiz.img ? `<div class="nbc-img"><img src="${newBiz.img}" alt="${newBiz.name}" style="max-width:100px"></div>` : ''}
     <div class="nbc-timestamp">${new Date().toLocaleString()}</div>
   `;
 
-  container.appendChild(card);
-
+  // container.appendChild(card);
+  container.prepend(card);
+  
+  
   // Optional: scroll to bottom so user sees the new card
-  container.scrollTop = container.scrollHeight;
+  // container.scrollTop = container.scrollHeight;
+ 
+  // ✅ Scroll new card into view while sheet stays open
+  card.scrollIntoView({ behavior: "smooth", block: "end" });
+
+
+
+
 }

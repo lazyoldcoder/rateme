@@ -135,6 +135,9 @@ export default {
           });
         }
 
+
+
+
         // get all existing businesses to determine next ID
         const keys = await env.BUSINESSES_KV.list();
 
@@ -145,7 +148,30 @@ export default {
           nextId = Math.max(...ids) + 1;
         }
 
+
+
+        // let nextId = 1;
+        // const keys = await env.BUSINESSES_KV.list();
+
+        // if (keys.keys.length > 0) {
+        //   const numericIds = keys.keys
+        //     .map(k => parseInt(k.name))
+        //     .filter(n => !isNaN(n) && n > 0);
+
+        //   if (numericIds.length > 0) {
+        //     nextId = Math.max(...numericIds) + 1;
+        //   }
+        // }
+
+
+
+
+
         business.id = nextId;
+
+
+
+
         business.created = new Date().toISOString();
 
         await env.BUSINESSES_KV.put(String(nextId), JSON.stringify(business));
@@ -163,36 +189,112 @@ export default {
 
     }
 
+    
+
+
+
+
+
+    // Open your local dev environment with npx wrangler dev (http://localhost:8787).
+    // Add a POST /api/businesses/reindex endpoint in your Worker, e.g.:
+    // 4.4 - Reindex all businesses with sequential integer IDs
+    
+    if (url.pathname === "/api/businesses/reindex" && request.method === "POST") {
+      try {
+        let allBusinesses = [];
+        let cursor;
+
+        // 1️⃣ Fetch all businesses (paginated)
+        do {
+          const { keys, list_complete, cursor: newCursor } = await env.BUSINESSES_KV.list({ cursor });
+          for (const k of keys) {
+            const data = await env.BUSINESSES_KV.get(k.name, { type: "json" });
+            if (data) allBusinesses.push(data);
+          }
+          cursor = newCursor;
+        } while (cursor);
+
+        // 2️⃣ Overwrite IDs with sequential integers
+        for (let i = 0; i < allBusinesses.length; i++) {
+          const biz = allBusinesses[i];
+          biz.id = i + 1; // sequential ID
+          if (!biz.created) biz.created = new Date().toISOString(); // optional: add timestamp if missing
+          await env.BUSINESSES_KV.put(String(biz.id), JSON.stringify(biz));
+        }
+
+        // 3️⃣ Return full reindexed list
+        return new Response(JSON.stringify(allBusinesses), {
+          headers: { "Content-Type": "application/json" }
+        });
+
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+    }
+
+
+
+
+
+    if (url.pathname === "/api/businesses/raw" && request.method === "GET") {
+      const keys = await env.BUSINESSES_KV.list();
+      const allBusinesses = [];
+      for (const k of keys.keys) {
+        const data = await env.BUSINESSES_KV.get(k.name, { type: "json" });
+        if (data) allBusinesses.push(data);
+      }
+      return new Response(JSON.stringify(allBusinesses, null, 2), {
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+
+    
+    // Step 1: Delete the null-ID business
+    // In your Worker, add a temporary endpoint:
+
+    if (url.pathname === "/api/businesses/clean-null" && request.method === "POST") {
+      const keys = await env.BUSINESSES_KV.list();
+      let deleted = 0;
+      for (const k of keys.keys) {
+        const data = await env.BUSINESSES_KV.get(k.name, { type: "json" });
+        if (data && data.id === null) {
+          await env.BUSINESSES_KV.delete(k.name);
+          deleted++;
+        }
+      }
+      
+      
+      // return new Response(JSON.stringify({ deleted }), {
+      //   headers: { "Content-Type": "application/json" }
+      // });
+    
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",   // ✅ allow all origins (for dev/testing)
+          "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
+        }
+      });    
+    
+    
+    }
+
+
+
+
+
+
     // 2.4 - Static assets fallback
     try { return await fetch(request); } catch (err) { return new Response("Not found", { status: 404 }); }
+ 
+
+
+
+
   }
 };
-
-
-
-
-
-
-
-// Open your local dev environment with npx wrangler dev (http://localhost:8787).
-// Add a POST /api/businesses/reindex endpoint in your Worker, e.g.:
-
-if (url.pathname === "/api/businesses/reindex" && request.method === "POST") {
-  const keys = await env.BUSINESSES_KV.list();
-  let allBusinesses = [];
-
-  for (let i = 0; i < keys.keys.length; i++) {
-    const k = keys.keys[i];
-    const biz = await env.BUSINESSES_KV.get(k.name, { type: "json" });
-    if (!biz) continue;
-
-    // rewrite id as index
-    biz.id = i;
-    await env.BUSINESSES_KV.put(String(i), JSON.stringify(biz));
-    allBusinesses.push(biz);
-  }
-
-  return new Response(JSON.stringify(allBusinesses), {
-    headers: { "Content-Type": "application/json" }
-  });
-}

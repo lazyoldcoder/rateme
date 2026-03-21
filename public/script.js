@@ -324,70 +324,6 @@ document.getElementById('reRegisterBtn').addEventListener('click', async () => {
 
 
 
-// /* ======== 15 Open / Close Add New Business Sheet ======== */
-
-// // 1. References  (move to Section 2 DOM references later)
-// const addnewBtn = document.getElementById('addnewBtn');
-// const addnewSheet = document.getElementById('addnewBusinessSheet');
-// const cancelAddnewBtn = document.getElementById('canceladdnewBtn');
-
-
-
-// // 2. Open sheet on Add New button click
-// addnewBtn.addEventListener('click', () => {
-//   document.body.classList.add('sheet-open-addnew');  // triggers transform: translateY(0)
-//   console.log("Add New sheet opened");               // <-- debug log
-// });
-
-// // 3. Close sheet on Cancel button click
-// cancelAddnewBtn.addEventListener('click', () => {
-//   document.body.classList.remove('sheet-open-addnew');
-//   console.log("Add New sheet closed");               // <-- debug log
-// });
-
-
-// /* ======== 15 Open / Close Add New Business Sheet ======== */
-
-// // 1. References (move to Section 2 DOM references later)
-// const addnewBtn = document.getElementById('addnewBtn');
-// const addnewSheet = document.getElementById('addnewBusinessSheet');
-// const cancelAddnewBtn = document.getElementById('canceladdnewBtn');
-// const newBizNameInput = document.getElementById('newBusinessName'); // first input
-
-// // 2. Open Add New sheet
-// addnewBtn.addEventListener('click', () => {
-//   // Optional: keep Select Business sheet visible underneath
-//   document.body.classList.add('sheet-open-addnew');   // triggers transform: translateY(0)
-  
-//   // Focus first input for convenience
-//   newBizNameInput.focus();
-  
-//   console.log("Add New sheet opened");
-// });
-
-// // 3. Close Add New sheet on Cancel button click
-// cancelAddnewBtn.addEventListener('click', () => {
-//   document.body.classList.remove('sheet-open-addnew');
-//   console.log("Add New sheet closed");
-// });
-
-// // 4. Close Add New sheet when clicking outside first input
-// addnewSheet.addEventListener('click', (e) => {
-//   const inputTop = newBizNameInput.getBoundingClientRect().top;
-
-//   // Only close if click is above first input and NOT the Cancel button or Add New button itself
-//   if (
-//     e.target !== newBizNameInput &&
-//     e.target !== cancelAddnewBtn &&
-//     e.target !== addnewBtn &&
-//     e.clientY < inputTop
-//   ) {
-//     document.body.classList.remove('sheet-open-addnew');
-//     console.log("Add New sheet closed via click outside");
-//   }
-// });
-
-
 /* ======== 15 Open / Close Add New Business Sheet ======== */
 
 // 1. References
@@ -521,33 +457,193 @@ if (email && businesses.some(b => b.email?.toLowerCase() === email.toLowerCase()
   }
 });
 
+// function appendNewBusinessCard(newBiz, username) {
+//   const container = document.getElementById('addnewBusinessSheet');
+
+//   const card = document.createElement('div');
+//   card.className = 'new-business-card';
+
+//   card.innerHTML = `
+//     <div class="nbc-header"><strong>${username}</strong> added a new business:</div>
+//     <div class="nbc-name">ID: ${newBiz.id}, ${newBiz.name}</div>
+//     <div class="nbc-location">Location: ${newBiz.location || '-'}</div>
+//     <div class="nbc-email">Email: ${newBiz.email || '-'}</div>
+//     <div class="nbc-latlng">Lat / Lng: ${newBiz.lat ?? '-'}, ${newBiz.lng ?? '-'}</div>
+//     ${newBiz.img ? `<div class="nbc-img"><img src="${newBiz.img}" alt="${newBiz.name}" style="max-width:100px"></div>` : ''}
+//     <div class="nbc-timestamp">${new Date().toLocaleString()}</div>
+//   `;
+
+//   container.appendChild(card);
+//   // container.prepend(card);
+  
+  
+//   // Optional: scroll to bottom so user sees the new card
+//   // container.scrollTop = container.scrollHeight;
+ 
+//   // ✅ Scroll new card into view while sheet stays open
+//   card.scrollIntoView({ behavior: "smooth", block: "end" });
+
+// }
+
+
+
+// function appendNewBusinessCard(newBiz, username) {
+//   const container = document.getElementById('addnewBusinessSheet');
+
+//   const card = document.createElement('div');
+//   card.className = 'new-business-card';
+
+//   card.innerHTML = `
+//     <!-- Line 1: username + "added a new business" + timestamp -->
+//     <div class="nbc-header text-small" style="display:flex; justify-content:space-between; align-items:center; margin: 0 0 2px 0;">
+//       <span><strong>${username}</strong> added a new business:</span>
+//       <span class="nbc-timestamp" style="font-size:0.65rem; color:#999;">${new Date().toLocaleString()}</span>
+//     </div>
+
+//     <!-- Line 2: ID + name -->
+//     <div class="nbc-name text-small" style="margin:0 0 2px 0;">ID: ${newBiz.id}, ${newBiz.name}</div>
+
+//     <!-- Line 3: Location -->
+//     <div class="nbc-location">Location: ${newBiz.location || '-'}</div>
+
+//     <!-- Line 4: Email -->
+//     <div class="nbc-email">Email: ${newBiz.email || '-'}</div>
+
+//     <!-- Line 5: Lat / Lng -->
+//     <div class="nbc-latlng">Lat / Lng: ${newBiz.lat ?? '-'}, ${newBiz.lng ?? '-'}</div>
+
+//     <!-- Optional image -->
+//     ${newBiz.img ? `<div class="nbc-img"><img src="${newBiz.img}" alt="${newBiz.name}" style="max-width:100px"></div>` : ''}
+//   `;
+
+//   container.appendChild(card);
+
+//   // Scroll new card into view
+//   card.scrollIntoView({ behavior: "smooth", block: "end" });
+// }
+
+
+// function appendNewBusinessCard(newBiz, username) {
+//   const container = document.getElementById('addnewBusinessSheet');
+
+//   const card = document.createElement('div');
+//   card.className = 'new-business-card';
+
+//   card.innerHTML = `
+//     <!-- Line 1: username + "added a new business" + timestamp -->
+//     <div class="nbc-header text-small" style="display:flex; justify-content:space-between; align-items:center; margin:0 0 2px 0;">
+//       <span><strong>${username}</strong> added a new business:</span>
+//       <span class="nbc-timestamp text-small" style="color:#999;">${new Date().toLocaleString()}</span>
+//     </div>
+
+//     <!-- Line 2: ID + name -->
+//     <div class="nbc-name text-small" style="margin:0 0 2px 0;">ID: ${newBiz.id}, ${newBiz.name}</div>
+
+//     <!-- Line 3: Location -->
+//     <div class="nbc-location">Location: ${newBiz.location || '-'}</div>
+
+//     <!-- Line 4: Email -->
+//     <div class="nbc-email">Email: ${newBiz.email || '-'}</div>
+
+//     <!-- Line 5: Lat / Lng -->
+//     <div class="nbc-latlng">Lat / Lng: ${newBiz.lat ?? '-'}, ${newBiz.lng ?? '-'}</div>
+
+//     <!-- Optional image -->
+//     ${newBiz.img ? `<div class="nbc-img"><img src="${newBiz.img}" alt="${newBiz.name}" style="max-width:100px"></div>` : ''}
+//   `;
+
+//   container.appendChild(card);
+
+//   // Scroll new card into view
+//   card.scrollIntoView({ behavior: "smooth", block: "end" });
+// }
+
+
+
+// function appendNewBusinessCard(newBiz, username) {
+//   const container = document.getElementById('addnewBusinessSheet');
+
+//   const card = document.createElement('div');
+//   card.className = 'new-business-card';
+//   card.style.padding = "0.4rem 1rem"; // smaller vertical padding
+
+//   card.innerHTML = `
+//     <!-- Line 1: username + added + timestamp -->
+//     <div class="nbc-header text-small" style="
+//       display:flex; 
+//       justify-content:space-between; 
+//       align-items:center; 
+//       margin:0; 
+//       padding:0;
+//       font-size:0.8rem;">
+//       <span><strong>${username}</strong> added a new business:</span>
+//       <span class="nbc-timestamp" style="font-size:0.7rem; color:#999;">${new Date().toLocaleString()}</span>
+//     </div>
+
+//     <!-- Line 2: ID + name -->
+//     <div class="nbc-name text-small" style="margin:0; padding:0; font-size:0.8rem;">
+//       ID: ${newBiz.id}, ${newBiz.name}
+//     </div>
+
+//     <!-- Line 3: Location -->
+//     <div class="nbc-location" style="margin:2px 0;">Location: ${newBiz.location || '-'}</div>
+
+//     <!-- Line 4: Email -->
+//     <div class="nbc-email" style="margin:2px 0;">Email: ${newBiz.email || '-'}</div>
+
+//     <!-- Line 5: Lat / Lng -->
+//     <div class="nbc-latlng" style="margin:2px 0;">Lat / Lng: ${newBiz.lat ?? '-'}, ${newBiz.lng ?? '-'}</div>
+
+//     <!-- Optional image -->
+//     ${newBiz.img ? `<div class="nbc-img" style="margin-top:2px;"><img src="${newBiz.img}" alt="${newBiz.name}" style="max-width:100px"></div>` : ''}
+//   `;
+
+//   container.appendChild(card);
+//   card.scrollIntoView({ behavior: "smooth", block: "end" });
+// }
+
+
+
+
+
 function appendNewBusinessCard(newBiz, username) {
   const container = document.getElementById('addnewBusinessSheet');
 
   const card = document.createElement('div');
   card.className = 'new-business-card';
+  card.style.padding = "0.3rem 1rem"; // slightly tighter vertical padding
 
   card.innerHTML = `
-    <div class="nbc-header"><strong>${username}</strong> added a new business:</div>
-    <div class="nbc-name">ID: ${newBiz.id}, ${newBiz.name}</div>
-    <div class="nbc-location">Location: ${newBiz.location || '-'}</div>
-    <div class="nbc-email">Email: ${newBiz.email || '-'}</div>
-    <div class="nbc-latlng">Lat / Lng: ${newBiz.lat ?? '-'}, ${newBiz.lng ?? '-'}</div>
-    ${newBiz.img ? `<div class="nbc-img"><img src="${newBiz.img}" alt="${newBiz.name}" style="max-width:100px"></div>` : ''}
-    <div class="nbc-timestamp">${new Date().toLocaleString()}</div>
+    <!-- Line 1: username + added + timestamp -->
+    <div class="nbc-header text-small" style="
+      display:flex; 
+      justify-content:space-between; 
+      align-items:center; 
+      margin:0; 
+      padding:0;
+      font-size:0.8rem;">
+      <span><strong>${username}</strong> added a new business:</span>
+      <span class="nbc-timestamp" style="font-size:0.7rem; color:#999;">${new Date().toLocaleString()}</span>
+    </div>
+
+    <!-- Line 2: ID + name -->
+    <div class="nbc-name text-small" style="margin:1px 0; padding:0; font-size:0.8rem;">
+      ID: ${newBiz.id}, ${newBiz.name}
+    </div>
+
+    <!-- Line 3: Location -->
+    <div class="nbc-location" style="margin:1px 0;">Location: ${newBiz.location || '-'}</div>
+
+    <!-- Line 4: Email -->
+    <div class="nbc-email" style="margin:1px 0;">Email: ${newBiz.email || '-'}</div>
+
+    <!-- Line 5: Lat / Lng -->
+    <div class="nbc-latlng" style="margin:1px 0;">Lat / Lng: ${newBiz.lat ?? '-'}, ${newBiz.lng ?? '-'}</div>
+
+    <!-- Optional image -->
+    ${newBiz.img ? `<div class="nbc-img" style="margin-top:2px;"><img src="${newBiz.img}" alt="${newBiz.name}" style="max-width:100px"></div>` : ''}
   `;
 
-  // container.appendChild(card);
-  container.prepend(card);
-  
-  
-  // Optional: scroll to bottom so user sees the new card
-  // container.scrollTop = container.scrollHeight;
- 
-  // ✅ Scroll new card into view while sheet stays open
+  container.appendChild(card);
   card.scrollIntoView({ behavior: "smooth", block: "end" });
-
-
-
-
 }

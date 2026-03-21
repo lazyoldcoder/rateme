@@ -3,7 +3,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
 <link rel="stylesheet" href="styles.css">
 <title>Rate Me</title>
 <!-- script type="module" src="/js/main.js"></script -->
@@ -18,13 +19,48 @@
 </div>
 
 <!-- Business Selector pop up sheet -->
+<!-- <label for="businessSelector">Select Business:</label> -->
+
+
+<!-- 
 <div id="businessSelector">
+  
+  <div class="selector-label">Select Business</div>
+  
   <div id="selectedBusiness">
+  
     <div class="biz-name">☕ Johns Coffee</div>
     <div class="biz-location">Queen Street</div>
+  
+  </div> -->
+
+  <div id="businessSelector">
+  <div id="selectedBusinessWrapper">
+    <div class="selector-label">Select Business:</div>
+    <div id="selectedBusiness">
+      <div class="biz-name">☕ Johns Coffee</div>
+      <div class="biz-location">Queen Street</div>
+    </div>
   </div>
-  <div class="biz-arrow">⌄⌄</div>
+
+  <div class="biz-arrow-wrapper">
+    <div class="tap-label">Tap</div>
+    <div class="biz-arrow">⌄⌄</div>
+  </div>
 </div>
+
+
+
+  <!-- 
+
+    <div class="biz-arrow-wrapper">
+      <div class="tap-label">Tap</div>
+      <div class="biz-arrow">⌄⌄</div>
+    </div>
+
+    
+
+  </div> -->
 
 <!-- Favorites - Horizontal scrolling Business Cards -->
 <label for="businessContainer">Favourites:</label>
@@ -90,6 +126,14 @@
 <div id="businessSheet">
 
   <div class="sheet-handle">
+    
+    <!-- <span class="handle-text">Tap to Close</span> -->
+
+    <div class="sheet-handle">
+      <span>Tap to close</span>
+    </div>
+
+
   </div>
 
   <!-- Flex row for label + button -->
@@ -116,52 +160,52 @@
 
 <!-- Add New Business Bottom Sheet -->
 <div id="addnewBusinessSheet" class="sheet">
+  
+  
+
   <div class="sheet-handle">
+  
+  
+    <!-- <span class="handle-text">Tap to Close</span> -->
+    
+    <div class="sheet-handle">
+      <span>Tap to close</span>
+    </div>
+  
   </div>
 
-  <h2>Add New Business</h2>
-<!--   
-  <form id="addNewBusinessForm">
-    <input type="text" id="newBusinessName" placeholder="Business Name" required>
-    <input type="text" id="newBusinessLocation" placeholder="Location">
-    <input type="email" id="newBusinessEmail" placeholder="Email" required>
-    <input type="text" id="newBusinessLat" placeholder="Latitude">
-    <input type="text" id="newBusinessLng" placeholder="Longitude">
-    <div style="margin-top: 1rem;">
-      <button type="submit" id="addnewBtn">Save</button>
-      <button type="button" id="canceladdnewBtn">Cancel</button>
-    </div>
-  </form> -->
 
 
+  <div class="text-small">Add New Business</div>
+
   <form id="addNewBusinessForm">
-    <label for="newBusinessName">Business Name <span style="color:red">*</span></label>
+    <div class="text-small" for="newBusinessName">Business Name <span style="color:red">*</span></div>
     <input type="text" id="newBusinessName" placeholder="Required" required>
 
-    <label for="newBusinessLocation">Location</label>
+    <div class="text-small" for="newBusinessLocation">Location</div>
     <input type="text" id="newBusinessLocation" placeholder="Optional">
 
-    <label for="newBusinessEmail">Email <span style="color:red">*</span></label>
+    <div class="text-small" for="newBusinessEmail">Email <span style="color:red">*</span></div>
     <input type="email" id="newBusinessEmail" placeholder="Required" required>
 
-    <hr>
-    <label>GPS Coordinates - Optional</label>
+    <hr class="hr">
+    <div class="text-small">GPS Coordinates - Manual or GPS</div>
       <div class="addnewgpsheader">
-        <span>Manual or GPS </span>
+        <!-- <div class="text-small">Manual or GPS </div> -->
         <button type="button" id="fillGPSBtn">📍 Use Current Location</button>
       </div>
-      <label for="newBusinessLat">Latitude</label>
+      <div class="text-small" for="newBusinessLat">Latitude</div>
     <input type="text" id="newBusinessLat" placeholder="Optional, can use GPS">
 
-    <!-- <label for="newBusinessLng">Longitude</label>
+    <div class="text-small" for="newBusinessLng">Longitude</div>
     <input type="text" id="newBusinessLng" placeholder="Optional, can use GPS">
 
 
-    <label for="newBusinessImg">Business Image (Future feature)</label>
-    <input type="text" id="newBusinessImg" placeholder="Image URL or filename"> -->
+    <div class="text-small" for="newBusinessImg">Business Image (Future feature)</div>
+    <input type="text" id="newBusinessImg" placeholder="Image URL or filename">
 
 
-    <div style="margin-top: 1rem;">
+    <div id="savenewBtnWrapper">
       <button type="submit" id="savenewbusinessBtn">Save</button>
       <button type="button" id="canceladdnewBtn">Cancel</button>
     </div>
@@ -171,20 +215,6 @@
 
 
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 <script src="script.js"></script>
